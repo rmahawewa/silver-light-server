@@ -1,0 +1,56 @@
+Classes
+
+-class: User
+	-id
+	-name
+	-birthday
+	-email
+	-password
+	-timestamp
+	
+-class: Photoes
+	-id
+	-uploaded-user-id - ref
+	-photo
+	-name
+	-description
+	-timestamp
+	
+-class: Post
+	-id
+	-created-user-id - ref
+	-photoes[] - ref
+	-description
+	-validation: photo-user-id === created-user-id
+	-timestamp
+	
+-class: photo-reaction
+	-id
+	-photo-id - ref
+	-reaction-type
+	-reacted-by-id
+	-timestamp
+	
+-class: post-reaction
+	-id
+	-post-id - ref
+	-reaction-type
+	-reacted-by-id
+	-timestamp
+	
+-class: post-comment
+	-id
+	-post-id - ref
+	-parent-comment-id - default:0
+	-content
+	-commented-by-id
+	-timestamp
+	
+-class: Connection
+	-id
+	-sender-id - ref
+	-receiver-id - ref
+	-status
+	-timestamp
+	
+
