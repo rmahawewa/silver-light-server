@@ -1,0 +1,32 @@
+{
+	"name": "silver-light-server",
+	"version": "1.0.0",
+	"description": "A social media app server",
+	"main": "index.js",
+	"directories": {
+		"doc": "docs"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "nodemon src/app.js",
+		"start": "node src/app.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rmahawewa/silver-light-server.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/rmahawewa/silver-light-server/issues"
+	},
+	"homepage": "https://github.com/rmahawewa/silver-light-server#readme",
+	"dependencies": {
+		"dotenv": "^16.5.0",
+		"express": "^5.1.0",
+		"mongoose": "^8.15.1",
+		"nodemon": "^3.1.10",
+		"validator": "^13.15.15"
+	}
+}
