@@ -2,7 +2,10 @@ const express = require("express");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const authRouter = express.Router();
-const validateSignUpData = require("../utils/validation");
+const {
+	validateSignUpData,
+	validateLoginData,
+} = require("../utils/validation");
 
 authRouter.post("/signup", async (req, res) => {
 	try {
@@ -36,6 +39,30 @@ authRouter.post("/signup", async (req, res) => {
 	}
 });
 
-authRouter.post("/login", async (req, res) => {});
+authRouter.post("/login", async (req, res) => {
+	try {
+		validateLoginData(req);
+		const { email, password } = req.body;
+		const loginUser = await User.findOne({ email: email });
+		if (!loginUser) {
+			throw new Error("User not found");
+		}
+		const isValidPassword = await loginUser.validatePassword(password);
+		if (isValidPassword) {
+			//Create a JWT Token
+			const token = loginUser.getJWT();
+
+			//Add the token to the cookie and send the response back to the user
+			res.cookie("token", token, {
+				expires: new Date(Date.now() + 7 * 24 * 3600000),
+			});
+			res.json({ message: "User login successfull", data: loginUser });
+		} else {
+			throw new Error("Invalid credentials");
+		}
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
 
 module.exports = authRouter;
