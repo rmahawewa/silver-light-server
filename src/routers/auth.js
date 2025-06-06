@@ -26,7 +26,7 @@ authRouter.post("/signup", async (req, res) => {
 		const savedUser = await user.save();
 
 		//Create a JWT Token
-		const token = savedUser.getJWT();
+		const token = await savedUser.getJWT();
 
 		//Add the token to the cookie and send the response back to the user
 		res.cookie("token", token, {
@@ -50,7 +50,7 @@ authRouter.post("/login", async (req, res) => {
 		const isValidPassword = await loginUser.validatePassword(password);
 		if (isValidPassword) {
 			//Create a JWT Token
-			const token = loginUser.getJWT();
+			const token = await loginUser.getJWT();
 
 			//Add the token to the cookie and send the response back to the user
 			res.cookie("token", token, {
@@ -63,6 +63,11 @@ authRouter.post("/login", async (req, res) => {
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
+});
+
+authRouter.post("/logout", async (req, res) => {
+	res.cookie("token", null, { expires: new Date(Date.now()) });
+	res.send("Logout successfull");
 });
 
 module.exports = authRouter;
