@@ -1,0 +1,169 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
+const cors = require("cors"); // For handling CORS issues during development
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json()); // For parsing JSON bodies (not directly for file uploads, but good practice)
+
+// Serve static files from the 'uploads' directory
+// This makes the uploaded images accessible via URL
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// MongoDB Connection
+mongoose
+	.connect("mongodb://localhost:27017/mern_image_upload")
+	.then(() => console.log("MongoDB Connected"))
+	.catch((err) => console.error(err));
+
+// Define a simple Mongoose Schema for storing image metadata
+const imageSchema = new mongoose.Schema({
+	filename: String,
+	originalname: String,
+	path: String, // Full path on server
+	url: String, // Accessible URL
+	uploadedAt: { type: Date, default: Date.now },
+});
+
+const Image = mongoose.model("Image", imageSchema);
+
+// Multer Storage Configuration
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		// Specify where to store the uploaded files
+		cb(null, "uploads/"); // 'uploads/' directory in the root of your backend project
+	},
+	filename: (req, file, cb) => {
+		// Define the filename to avoid conflicts (e.g., add timestamp)
+		cb(null, Date.now() + "-" + file.originalname);
+	},
+});
+
+// Multer Upload Instance
+// 'image' here must match the 'name' attribute in your FormData.append('image', file) on the frontend
+const upload = multer({ storage: storage });
+
+// API Route for Image Upload
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+	try {
+		if (!req.file) {
+			return res.status(400).json({ message: "No file uploaded." });
+		}
+
+		// Access file details from req.file after multer processes it
+		const { filename, originalname, path: filePath } = req.file;
+
+		// Construct the URL where the image will be accessible
+		const imageUrl = `http://localhost:${PORT}/uploads/${filename}`;
+
+		// Save image metadata to MongoDB
+		const newImage = new Image({
+			filename,
+			originalname,
+			path: filePath,
+			url: imageUrl,
+		});
+
+		await newImage.save();
+
+		res.status(200).json({
+			message: "Image uploaded successfully!",
+			filename,
+			originalname,
+			filePath,
+			imageUrl,
+		});
+	} catch (error) {
+		console.error("Error during image upload:", error);
+		res
+			.status(500)
+			.json({ message: "Server error during upload.", error: error.message });
+	}
+});
+
+// Start the server
+app.listen(PORT, () => {
+	console.log(`Server running on port ${PORT}`);
+	console.log(`Please ensure 'uploads' directory exists in your backend root.`);
+});
+
+import React, { useState } from "react";
+import axios from "axios"; // Or use built-in fetch
+
+function ImageUpload() {
+	const [selectedFile, setSelectedFile] = useState(null);
+	const [message, setMessage] = useState("");
+	const [imageUrl, setImageUrl] = useState("");
+
+	const handleFileChange = (event) => {
+		setSelectedFile(event.target.files[0]); // Get the first file
+		setMessage(""); // Clear previous messages
+		setImageUrl(""); // Clear previous image
+	};
+
+	const handleUpload = async () => {
+		if (!selectedFile) {
+			setMessage("Please select a file first!");
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append("image", selectedFile); // 'image' is the field name expected by the backend
+
+		try {
+			setMessage("Uploading...");
+			const response = await axios.post(
+				"http://localhost:5000/api/upload",
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data", // Important for file uploads
+					},
+				}
+			);
+			setMessage("Upload successful!");
+			setImageUrl(response.data.imageUrl); // Assuming backend sends back the image URL
+			setSelectedFile(null); // Clear selected file after successful upload
+		} catch (error) {
+			console.error("Error uploading image:", error);
+			setMessage(
+				"Upload failed: " + (error.response?.data?.message || error.message)
+			);
+			setImageUrl("");
+		}
+	};
+
+	return (
+		<div>
+			<h2>Upload Image</h2>
+			<input type="file" accept="image/*" onChange={handleFileChange} />
+			<button onClick={handleUpload} disabled={!selectedFile}>
+				Upload
+			</button>
+			{message && <p>{message}</p>}
+			{imageUrl && (
+				<div>
+					<h3>Uploaded Image:</h3>
+					<img
+						src={imageUrl}
+						alt="Uploaded"
+						style={{ maxWidth: "300px", maxHeight: "300px" }}
+					/>
+					<p>
+						URL:{" "}
+						<a href={imageUrl} target="_blank" rel="noopener noreferrer">
+							{imageUrl}
+						</a>
+					</p>
+				</div>
+			)}
+		</div>
+	);
+}
+
+export default ImageUpload;
