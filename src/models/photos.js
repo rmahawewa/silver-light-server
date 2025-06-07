@@ -17,12 +17,15 @@ const photosSchema = new mongoose.Schema(
 		},
 		fileName: {
 			type: String,
+			required: true,
 		},
 		originalName: {
 			type: String,
+			required: true,
 		},
 		path: {
 			type: String,
+			required: true,
 		},
 		url: {
 			type: String,
@@ -37,3 +40,5 @@ const photosSchema = new mongoose.Schema(
 	},
 	{ timestamps: true }
 );
+
+module.exports = mongoose.model("Image", photosSchema);

@@ -28,4 +28,21 @@ const validateLoginData = (req) => {
 	}
 };
 
-module.exports = { validateSignUpData, validateLoginData };
+const validateImageData = (req) => {
+	const { filename, originalname, path } = req.file;
+	const { photoTitle } = req.body;
+
+	if (!filename) {
+		throw new Error("Image information are missing");
+	}
+	if (!originalname || !path) {
+		throw new Error(
+			"Internal server error: file original name or path is missing"
+		);
+	}
+	if (!photoTitle) {
+		throw new Error("Photo title is required");
+	}
+};
+
+module.exports = { validateSignUpData, validateLoginData, validateImageData };
