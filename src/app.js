@@ -5,12 +5,13 @@ const authRouter = require("./routers/auth");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const ImageRouter = require("./routers/photos");
+const userRouter = require("./routers/user");
 const path = require("path");
 
 const app = express();
 
 app.use(express.json());
-const corsOptions = { origin: "http://localhost:5174", credentials: true };
+const corsOptions = { origin: "http://localhost:5173", credentials: true };
 app.use(cors(corsOptions));
 app.use(cookieParser());
 // console.log(__dirname);
@@ -20,6 +21,7 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use("/", authRouter);
 app.use("/", ImageRouter);
+app.use("/", userRouter);
 
 connectDB()
 	.then(() => {

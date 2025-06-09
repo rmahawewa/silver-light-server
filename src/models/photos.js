@@ -34,6 +34,14 @@ const photosSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		category: [
+			{
+				type: String,
+				required: true,
+				trim: true,
+				lowercase: true,
+			},
+		],
 		photoDescription: {
 			type: String,
 		},

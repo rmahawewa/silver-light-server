@@ -16,7 +16,7 @@ ImageRouter.post("/image/upload", upload.single("image"), async (req, res) => {
 
 		//Access file details from req.file after multer process it
 		const { filename, originalname, path: filePath } = req.file;
-		const { photoTitle, photoDescription } = req.body;
+		const { photoTitle, category, photoDescription } = req.body;
 
 		//Image will be accesible from this URL
 		const imageUrl = `http://localhost:${process.env.PORT}/src/uploads/${filename}`;
@@ -29,6 +29,7 @@ ImageRouter.post("/image/upload", upload.single("image"), async (req, res) => {
 			path: filePath,
 			url: imageUrl,
 			photoTitle: photoTitle,
+			category: category.split(","),
 			photoDescription: photoDescription,
 		});
 		const savedImage = await image.save();
@@ -44,6 +45,31 @@ ImageRouter.post("/image/upload", upload.single("image"), async (req, res) => {
 	}
 });
 
-ImageRouter.get("/image/:imageId", async (req, res) => {});
+ImageRouter.get("/image/:imageId", async (req, res) => {
+	try {
+		const imageId = req.params.imageId;
+		let image = await Image.findById({ _id: imageId });
+		if (!image) {
+			throw new Error("Image not found");
+		}
+		res.status(200).json({ data: image });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
+
+ImageRouter.get("/image/:categoryName", async (req, res) => {
+	try {
+		const category = req.params.categoryName;
+		category = category.toLowerCase;
+		let images = await Image.find({ category: category });
+		if (!images) {
+			res.json({ message: "No images found for the category" });
+		}
+		res.status(200).json({ data: images });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
 
 module.exports = ImageRouter;
