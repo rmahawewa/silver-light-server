@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const ImageRouter = require("./routers/photos");
 const userRouter = require("./routers/user");
+const categoryRouter = require("./routers/category");
 const path = require("path");
 
 const app = express();
@@ -22,6 +23,7 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 app.use("/", authRouter);
 app.use("/", ImageRouter);
 app.use("/", userRouter);
+app.use("/", categoryRouter);
 
 connectDB()
 	.then(() => {

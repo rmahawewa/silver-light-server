@@ -58,18 +58,4 @@ ImageRouter.get("/image/:imageId", async (req, res) => {
 	}
 });
 
-ImageRouter.get("/image/:categoryName", async (req, res) => {
-	try {
-		const category = req.params.categoryName;
-		category = category.toLowerCase;
-		let images = await Image.find({ category: category });
-		if (!images) {
-			res.json({ message: "No images found for the category" });
-		}
-		res.status(200).json({ data: images });
-	} catch (err) {
-		res.status(400).send(err.message);
-	}
-});
-
 module.exports = ImageRouter;
