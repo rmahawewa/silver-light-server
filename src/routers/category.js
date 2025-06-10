@@ -20,33 +20,13 @@ categoryRouter.get("/allCategories", async (req, res) => {
 	}
 });
 
-categoryRouter.get("/category/:categoryName", async (req, res) => {
+categoryRouter.post("/category/allByCategory", async (req, res) => {
 	try {
-		let categoryName = req.params.categoryName;
-		// categoryName = categoryName.trim().toLowerCase();
-		console.log(categoryName.localeCompare("sun") === 0);
-		console.log("1. Row category from URL parameter: ", categoryName);
-		// console.log(
-		// 	"(Raw char codes:",
-		// 	categoryName
-		// 		? categoryName.split("").map((c) => c.charCodeAtcharCodeAt(0))
-		// 		: "N/A",
-		// 	")"
-		// );
-		// console.log(
-		// 	"(Raw char codes:",
-		// 	categoryName
-		// 		? categoryName.split("").map((c) => c.charCodeAtcharCodeAt(0))
-		// 		: "N/A",
-		// 	")"
-		// );
-		console.log(
-			"(Raw char codes of sun:",
-			"sun".split("").map((c) => c.charCodeAt(0)),
-			")"
-		);
+		let { categoryName } = req.body;
+		categoryName = categoryName.trim().toLowerCase();
+
 		let images = await Image.find({
-			category: { $in: [categoryName.toString().trim().toLocaleLowerCase] },
+			category: { $in: [categoryName] },
 		});
 		if (!images || images.length === 0) {
 			return res
