@@ -3,6 +3,7 @@ const ImageRouter = express.Router();
 const { userAuth } = require("../middleware/auth");
 const upload = require("../config/storage");
 const Image = require("../models/photos");
+const User = require("../models/user");
 const { validateImageData } = require("../utils/validation");
 
 ImageRouter.post("/image/upload", upload.single("image"), async (req, res) => {
@@ -53,6 +54,21 @@ ImageRouter.get("/image/:imageId", async (req, res) => {
 			throw new Error("Image not found");
 		}
 		res.status(200).json({ data: image });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
+
+ImageRouter.patch("/image/update", async (req, res) => {
+	try {
+		const userId = "6841738705c90d15f9f0b308";
+		const { _id, photoTitle, category, photoDescription } = req.body;
+		const img = await Image.findById({ _id: _id });
+		console.log(img);
+		if (userId !== uploadedUser) {
+			throw new Error("Permission denied");
+		}
+		req.send();
 	} catch (err) {
 		res.status(400).send(err.message);
 	}

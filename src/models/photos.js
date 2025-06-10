@@ -1,11 +1,3 @@
-// -class: Photoes
-// 	-id
-// 	-uploaded-user-id - ref
-// 	-photo
-// 	-name
-// 	-description
-// 	-timestamp
-
 const mongoose = require("mongoose");
 
 const photosSchema = new mongoose.Schema(
