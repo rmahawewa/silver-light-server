@@ -61,14 +61,25 @@ ImageRouter.get("/image/:imageId", async (req, res) => {
 
 ImageRouter.patch("/image/update", async (req, res) => {
 	try {
-		const userId = "6841738705c90d15f9f0b308";
+		// const userId = "6841738705c90d15f9f0b308";
+		const userId = "684196fc23f574b6b043f5f4";
 		const { _id, photoTitle, category, photoDescription } = req.body;
 		const img = await Image.findById({ _id: _id });
 		console.log(img);
-		if (userId !== uploadedUser) {
+		console.log(img.uploadedUserId != userId);
+		console.log({ _id, photoTitle, category, photoDescription });
+		if (img.uploadedUserId != userId) {
 			throw new Error("Permission denied");
 		}
-		req.send();
+		console.log(category);
+		img.photoTitle = photoTitle;
+		img.category = category;
+		img.photoDescription = photoDescription;
+		const updatedImage = await img.save();
+		if (!updatedImage) {
+			throw new Error("Failed to update the image");
+		}
+		res.send(updatedImage);
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
