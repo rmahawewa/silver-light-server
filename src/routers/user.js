@@ -31,7 +31,31 @@ userRouter.get("/feed", async (req, res) => {
 		const releventReactions = await PhotoReaction.find({
 			photoId: { $in: Array.from(imageIds) },
 		});
-		res.json({ imageData: releventImages, reactionData: releventReactions });
+		const like = new Array();
+		const familier = new Array();
+		const aTrue = new Array();
+		const love = new Array();
+		const wonderful = new Array();
+		const iFeelJelousy = new Array();
+		releventReactions.forEach((r) => {
+			console.log(r.reactionType === "wonderful");
+			if (r.reactionType === "like") like.push(r);
+			if (r.reactionType === "familier") familier.push(r);
+			if (r.reactionType === "aTrue") aTrue.push(r);
+			if (r.reactionType === "love") love.push(r);
+			if (r.reactionType === "wonderful") wonderful.push(r);
+			if (r.reactionType === "iFeelJelousy") iFeelJelousy.push(r);
+		});
+
+		res.json({
+			imageData: releventImages,
+			like: like,
+			familier: familier,
+			aTrue: aTrue,
+			love: love,
+			wonderful: wonderful,
+			iFeelJelousy: iFeelJelousy,
+		});
 	} catch (err) {
 		console.error(err.message);
 	}

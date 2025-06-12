@@ -14,10 +14,10 @@ const photoReactionSchema = new mongoose.Schema(
 				values: [
 					"like",
 					"familier",
-					"true",
+					"aTrue",
 					"love",
 					"wonderful",
-					"I feel jelousy",
+					"iFeelJelousy",
 					"undo",
 				],
 				message: `{VALUE} is an incorrect status type`,
