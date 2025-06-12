@@ -1,6 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
 const Image = require("../models/photos");
+const PhotoReaction = require("../models/photo-reaction");
 const { userAuth } = require("../middleware/auth");
 
 userRouter.get("/feed", async (req, res) => {

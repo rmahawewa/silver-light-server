@@ -20,7 +20,7 @@ const photoReactionSchema = new mongoose.Schema(
 					"I feel jelousy",
 					"undo",
 				],
-				message: `${VALUE} is an incorrect status type`,
+				message: `{VALUE} is an incorrect status type`,
 			},
 		},
 		reactedById: {

@@ -7,6 +7,7 @@ const cors = require("cors");
 const ImageRouter = require("./routers/photos");
 const userRouter = require("./routers/user");
 const categoryRouter = require("./routers/category");
+const PhotoReactionRouter = require("./routers/photo-reaction");
 const path = require("path");
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/", authRouter);
 app.use("/", ImageRouter);
 app.use("/", userRouter);
 app.use("/", categoryRouter);
+app.use("/", PhotoReactionRouter);
 
 connectDB()
 	.then(() => {
