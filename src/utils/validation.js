@@ -1,4 +1,5 @@
 const validator = require("validator");
+const Image = require("../models/photos");
 
 const validateSignUpData = (req) => {
 	const { firstName, lastName, userName, email, password } = req.body;
@@ -45,4 +46,24 @@ const validateImageData = (req) => {
 	}
 };
 
-module.exports = { validateSignUpData, validateLoginData, validateImageData };
+const validatePostPhotoData = (req) => {
+	loggedInUser = req.user._id;
+	const { images } = req.body;
+	images.forEach(async (img) => {
+		const uploadedUserId = await Image.findById({ _id: img }).select(
+			"uploadedUserId"
+		);
+		if (loggedInUser !== uploadedUserId) {
+			throw new Error(
+				"Permissions denied. You can only use images uploaded by you."
+			);
+		}
+	});
+};
+
+module.exports = {
+	validateSignUpData,
+	validateLoginData,
+	validateImageData,
+	validatePostPhotoData,
+};
