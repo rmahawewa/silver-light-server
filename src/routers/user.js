@@ -2,6 +2,7 @@ const express = require("express");
 const userRouter = express.Router();
 const Image = require("../models/photos");
 const PhotoReaction = require("../models/photo-reaction");
+const PostReaction = require("../models/post-reaction");
 const { userAuth } = require("../middleware/auth");
 
 // userRouter.get("/feed", async (req, res) => {
@@ -55,15 +56,20 @@ const { userAuth } = require("../middleware/auth");
 // 	}
 // });
 
-userRouter.get("/feed", async (req, res) => {
+userRouter.get("/feed", userAuth, async (req, res) => {
 	try {
+		// const loggedUser = req.user._id;
 		const loggedUser = "6841738705c90d15f9f0b308";
 		// Find categories for images uploaded by the logged user
 		const distinctCategories = await Image.distinct("category", {
 			uploadedUserId: loggedUser,
 		});
+		// Find categories for posts uploaded by the logged user
+		const postCategories = await Post.distinct("category", {
+			uploadedUserId: loggedUser,
+		});
 		//Find relevent images and their reactions using aggregation
-		const feedData = await Image.aggregate([
+		const feedImageData = await Image.aggregate([
 			{ $match: { category: { $in: distinctCategories } } },
 			// Lookup reactions for these images
 			{
@@ -88,14 +94,43 @@ userRouter.get("/feed", async (req, res) => {
 					reactions: {
 						_id: 1,
 						reactionType: 1,
-						reactedBy: 1,
+						reactedById: 1,
+					},
+				},
+			},
+		]);
+		//Find relevent posts and their reactions using aggregation
+		const feedPostData = await Post.aggregate([
+			{ $match: { category: { $in: postCategories } } },
+			//Lookup reactions for these posts
+			{
+				$lookup: {
+					from: "postreactions",
+					localField: "_id",
+					foreignField: "postId",
+					as: "post_reactions",
+				},
+			},
+			//Project the required fields and restructure post-reaction data for the client
+			{
+				$project: {
+					_id: 1,
+					createdUserId: 1,
+					title: 1,
+					photos: 1,
+					category: 1,
+					description: 1,
+					post_reactions: {
+						_id: 1,
+						reactionType: 1,
+						reactedById: 1,
 					},
 				},
 			},
 		]);
 		//Process reactions to get counts an seperate arrays
 		const allReactions = [];
-		feedData.forEach((image) => {
+		feedImageData.forEach((image) => {
 			if (image.reactions) {
 				allReactions.push(...image.reactions);
 			}
@@ -116,8 +151,33 @@ userRouter.get("/feed", async (req, res) => {
 			else if (r.reactionType === "iFeelJelousy") iFeelJelousy.push(r);
 		});
 
+		//Process post reactions to get counts an seperate arrays
+		const allPostReactions = [];
+		feedPostData.forEach((post) => {
+			if (post.reactions) {
+				allPostReactions.push(...post.reactions);
+			}
+		});
+		const postLike = [];
+		const postFamilier = [];
+		const postAtrue = [];
+		const postLove = [];
+		const postWonderful = [];
+		const postIfeelJelousy = [];
+
+		allPostReactions.forEach((r) => {
+			if (r.reactionType === "like") postLike.push(r);
+			else if (r.reactionType === "familier") postFamilier.push(r);
+			else if (r.reactionType === "aTrue") postAtrue.push(r);
+			else if (r.reactionType === "love") postLove.push(r);
+			else if (r.reactionType === "wonderful") postWonderful.push(r);
+			else if (r.reactionType === "iFeelJelousy") postIfeelJelousy.push(r);
+		});
+
 		res.json({
-			imageData: feedData.map(({ reactions, ...imageFields }) => imageFields),
+			imageData: feedImageData.map(
+				({ reactions, ...imageFields }) => imageFields
+			),
 			reactions: {
 				like: like,
 				familier: familier,
@@ -125,6 +185,17 @@ userRouter.get("/feed", async (req, res) => {
 				love: love,
 				wonderful: wonderful,
 				iFeelJelousy: iFeelJelousy,
+			},
+			postData: feedPostData.map(
+				({ post_reactions, ...postFields }) => postFields
+			),
+			postReactions: {
+				like: postLike,
+				familier: postFamilier,
+				true: postAtrue,
+				love: postLove,
+				wonderful: postWonderful,
+				iFeelJelousy: postIfeelJelousy,
 			},
 		});
 	} catch (err) {

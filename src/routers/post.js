@@ -47,3 +47,17 @@ postRouter.patch("/post/update", userAuth, async (req, res) => {
 		res.status(400).send(err.message);
 	}
 });
+
+postRouter.get("/post/:postId", userAuth, async (req, res) => {
+	try {
+		const loggedInUser = req.user;
+		const postId = req.params.postId;
+		const post = await Post.find({ _id: postId, createdUserId: loggedInUser });
+		if (!post) {
+			throw new Error("The requested post is not found.");
+		}
+		res.json({ data: post });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});

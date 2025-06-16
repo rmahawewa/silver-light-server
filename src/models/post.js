@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema(
 			type: String,
 		},
 		photos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Image" }],
-		category: [{}],
+		category: [{ type: String, required: true, trim: true, lowercase: true }],
 		description: {
 			type: String,
 		},
