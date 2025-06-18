@@ -23,3 +23,6 @@ const connectionRequestSchema = new mongoose.Schema(
 	},
 	{ timestamps: true }
 );
+
+//indexing the schema to find the relevent record easily
+connectionRequestSchema.index({});
