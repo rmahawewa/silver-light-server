@@ -154,7 +154,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 		//Process post reactions to get counts an seperate arrays
 		const allPostReactions = [];
 		feedPostData.forEach((post) => {
-			if (post.reactions) {
+			if (post.post_reactions) {
 				allPostReactions.push(...post.reactions);
 			}
 		});
@@ -181,7 +181,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 			reactions: {
 				like: like,
 				familier: familier,
-				true: aTrue,
+				atrue: aTrue,
 				love: love,
 				wonderful: wonderful,
 				iFeelJelousy: iFeelJelousy,
@@ -192,7 +192,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 			postReactions: {
 				like: postLike,
 				familier: postFamilier,
-				true: postAtrue,
+				atrue: postAtrue,
 				love: postLove,
 				wonderful: postWonderful,
 				iFeelJelousy: postIfeelJelousy,
@@ -200,6 +200,54 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 		});
 	} catch (err) {
 		console.log(err.message);
+		res.status(400).send(err.message);
+	}
+});
+
+userRouter.get("/feed/postcomments", userAuth, async (req, res) => {
+	try {
+		const loggedUser = req.user;
+		const postCategories = await Post.distinct("category", {
+			uploadedUserId: loggedUser,
+		});
+		const feedPostData = await Post.aggregate([
+			{ $match: { category: { $in: postCategories } } },
+			//Lookup comments for these posts
+			{
+				$lookup: {
+					from: "postcomments",
+					localField: "_id",
+					foreignField: "postId",
+					as: "comments",
+				},
+			},
+			//Project the required fields and restructure data for the client
+			{
+				$project: {
+					_id: 1,
+					comments: {
+						_id: 1,
+						postId: 1,
+						parentCommentId: 1,
+						commentByUser: 1,
+						comment: 1,
+					},
+				},
+			},
+		]);
+		//Process comments to store in a seperate array
+		const commentsArray = [];
+		feedPostData.forEach((comment) => {
+			if (comment.comments) {
+				commentsArray.push(...comment.comments);
+			}
+		});
+
+		res.json({
+			postData: feedPostData.map(({ comments, ...postContent }) => postContent),
+			comments: commentsArray,
+		});
+	} catch (err) {
 		res.status(400).send(err.message);
 	}
 });
