@@ -56,3 +56,5 @@ postCommentRouter.delete(
 		}
 	}
 );
+
+module.exports = postCommentRouter;

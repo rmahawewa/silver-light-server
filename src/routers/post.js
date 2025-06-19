@@ -61,3 +61,5 @@ postRouter.get("/post/:postId", userAuth, async (req, res) => {
 		res.status(400).send(err.message);
 	}
 });
+
+module.exports = postRouter;

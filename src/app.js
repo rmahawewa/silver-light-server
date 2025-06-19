@@ -8,6 +8,10 @@ const ImageRouter = require("./routers/photos");
 const userRouter = require("./routers/user");
 const categoryRouter = require("./routers/category");
 const PhotoReactionRouter = require("./routers/photo-reaction");
+const postRouter = require("./routers/post");
+const postReactionRouter = require("./routers/post-reaction");
+const postCommentRouter = require("./routers/post-comment");
+const requestRouter = require("./routers/request");
 const path = require("path");
 
 const app = express();
@@ -26,6 +30,10 @@ app.use("/", ImageRouter);
 app.use("/", userRouter);
 app.use("/", categoryRouter);
 app.use("/", PhotoReactionRouter);
+app.use("/", postRouter);
+app.use("/", postReactionRouter);
+app.use("/", postCommentRouter);
+app.use("/", requestRouter);
 
 connectDB()
 	.then(() => {
