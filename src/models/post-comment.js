@@ -10,11 +10,7 @@ const postCommentSchema = new mongoose.Schema(
 		parentCommentId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "PostComment",
-			require: true,
-			default: function () {
-				//'this' refers to the document being saved
-				return this.postId;
-			},
+			default: null,
 		},
 		commentByUser: {
 			type: mongoose.Schema.Types.ObjectId,
@@ -25,8 +21,11 @@ const postCommentSchema = new mongoose.Schema(
 			type: String,
 			require: true,
 		},
+		childCommentIds: [
+			{ type: mongoose.Schema.Types.ObjectId, ref: "PostComment" },
+		],
 	},
-	{ timestamps: trues }
+	{ timestamps: true }
 );
 
 module.exports = mongoose.model("PostComment", postCommentSchema);

@@ -17,7 +17,16 @@ postCommentRouter.post("/postcomment/save", userAuth, async (req, res) => {
 			comment: comment,
 		});
 		const save = await postcomment.save();
-		res.json({ message: "Comment successfully saved", data: save });
+		const parentComment = await PostComment.findById({ _id: parentCommentId });
+		if (parentComment) {
+			parentComment.childCommentIds.push(save._id);
+			await parentComment.save();
+		}
+		res.json({
+			message: "Comment successfully saved",
+			data: save,
+			parent: parentComment,
+		});
 	} catch (err) {
 		res.send(err.message);
 	}
@@ -45,10 +54,15 @@ postCommentRouter.delete(
 	async (req, res) => {
 		try {
 			const id = req.params.id;
-			const deletedComment = await postcomment.deleteOne({ _id: id });
-			if (deletedComment.deletedCount !== 1) {
-				throw new Error("Couldn't delete the comment");
+
+			//Execute the recursive deletion process
+			const deletionResult = await deleteRecurcively(id);
+
+			if (deletionResult.deletedCount < 1) {
+				//This might happen if the initial comment ID wasn't found
+				throw new Error("Comment not found or couldn't be deleted.");
 			}
+
 			res.json({ message: "Comment successfully deleted" });
 		} catch (err) {
 			console.error(err.message);
@@ -56,5 +70,39 @@ postCommentRouter.delete(
 		}
 	}
 );
+
+deleteRecurcively = async (commentId) => {
+	try {
+		const comment = await PostComment.findById({ _id: commentId });
+		if (!comment) {
+			//Comment not found, nothing to delete for this ID
+			return { deletedCount: 0 };
+		}
+
+		//Recursively delete child comments
+		if (comment.childCommentIds && comment.childCommentIds.length > 0) {
+			//Use Promise.all to wait for all child deletions to complete
+			await Promise.all(
+				comment.childCommentIds.map(async (childId) => {
+					await deleteCommentAndChildren(childId);
+				})
+			);
+		}
+
+		//Remove the comment's ID from its parent's childCommentIds array
+		if (comment.parentCommentId) {
+			await PostComment.updateOne(
+				{ _id: comment.parentCommentId },
+				{ $pull: { childCommentIds: commentId } }
+			);
+		}
+
+		//Delete the comment itself
+		const result = await PostComment.deleteOne({ _id: commentId });
+		return result;
+	} catch (err) {
+		throw new Error(err.message);
+	}
+};
 
 module.exports = postCommentRouter;
