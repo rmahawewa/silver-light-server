@@ -20,7 +20,7 @@ ImageRouter.post("/image/upload", upload.single("image"), async (req, res) => {
 		const { photoTitle, category, photoDescription } = req.body;
 
 		//Image will be accesible from this URL
-		const imageUrl = `http://localhost:${process.env.PORT}/src/uploads/${filename}`;
+		const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
 
 		//Save the image metadata to mongo db
 		const image = new Image({

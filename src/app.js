@@ -12,7 +12,7 @@ const postRouter = require("./routers/post");
 const postReactionRouter = require("./routers/post-reaction");
 const postCommentRouter = require("./routers/post-comment");
 const requestRouter = require("./routers/request");
-const path = require("path");
+const path = require("path"); // Node.js built-in module for path manipulation
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(cookieParser());
 // console.log(__dirname);
 // return;
 
-app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "src", "uploads")));
 
 app.use("/", authRouter);
 app.use("/", ImageRouter);

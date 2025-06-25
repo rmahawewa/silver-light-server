@@ -1,6 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
 const Image = require("../models/photos");
+const Post = require("../models/post");
 const PhotoReaction = require("../models/photo-reaction");
 const PostReaction = require("../models/post-reaction");
 const { userAuth } = require("../middleware/auth");
@@ -129,74 +130,76 @@ userRouter.get("/feed", userAuth, async (req, res) => {
 			},
 		]);
 		//Process reactions to get counts an seperate arrays
-		const allReactions = [];
-		feedImageData.forEach((image) => {
-			if (image.reactions) {
-				allReactions.push(...image.reactions);
-			}
-		});
-		const like = [];
-		const familier = [];
-		const aTrue = [];
-		const love = [];
-		const wonderful = [];
-		const iFeelJelousy = [];
+		// const allReactions = [];
+		// feedImageData.forEach((image) => {
+		// 	if (image.reactions) {
+		// 		allReactions.push(...image.reactions);
+		// 	}
+		// });
+		// const like = [];
+		// const familier = [];
+		// const aTrue = [];
+		// const love = [];
+		// const wonderful = [];
+		// const iFeelJelousy = [];
 
-		allReactions.forEach((r) => {
-			if (r.reactionType === "like") like.push(r);
-			else if (r.reactionType === "familier") familier.push(r);
-			else if (r.reactionType === "aTrue") aTrue.push(r);
-			else if (r.reactionType === "love") love.push(r);
-			else if (r.reactionType === "wonderful") wonderful.push(r);
-			else if (r.reactionType === "iFeelJelousy") iFeelJelousy.push(r);
-		});
+		// allReactions.forEach((r) => {
+		// 	if (r.reactionType === "like") like.push(r);
+		// 	else if (r.reactionType === "familier") familier.push(r);
+		// 	else if (r.reactionType === "aTrue") aTrue.push(r);
+		// 	else if (r.reactionType === "love") love.push(r);
+		// 	else if (r.reactionType === "wonderful") wonderful.push(r);
+		// 	else if (r.reactionType === "iFeelJelousy") iFeelJelousy.push(r);
+		// });
 
 		//Process post reactions to get counts an seperate arrays
-		const allPostReactions = [];
-		feedPostData.forEach((post) => {
-			if (post.post_reactions) {
-				allPostReactions.push(...post.reactions);
-			}
-		});
-		const postLike = [];
-		const postFamilier = [];
-		const postAtrue = [];
-		const postLove = [];
-		const postWonderful = [];
-		const postIfeelJelousy = [];
+		// const allPostReactions = [];
+		// feedPostData.forEach((post) => {
+		// 	if (post.post_reactions) {
+		// 		allPostReactions.push(...post.post_reactions);
+		// 	}
+		// });
+		// const postLike = [];
+		// const postFamilier = [];
+		// const postAtrue = [];
+		// const postLove = [];
+		// const postWonderful = [];
+		// const postIfeelJelousy = [];
 
-		allPostReactions.forEach((r) => {
-			if (r.reactionType === "like") postLike.push(r);
-			else if (r.reactionType === "familier") postFamilier.push(r);
-			else if (r.reactionType === "aTrue") postAtrue.push(r);
-			else if (r.reactionType === "love") postLove.push(r);
-			else if (r.reactionType === "wonderful") postWonderful.push(r);
-			else if (r.reactionType === "iFeelJelousy") postIfeelJelousy.push(r);
-		});
+		// allPostReactions.forEach((r) => {
+		// 	if (r.reactionType === "like") postLike.push(r);
+		// 	else if (r.reactionType === "familier") postFamilier.push(r);
+		// 	else if (r.reactionType === "aTrue") postAtrue.push(r);
+		// 	else if (r.reactionType === "love") postLove.push(r);
+		// 	else if (r.reactionType === "wonderful") postWonderful.push(r);
+		// 	else if (r.reactionType === "iFeelJelousy") postIfeelJelousy.push(r);
+		// });
 
 		res.json({
-			imageData: feedImageData.map(
-				({ reactions, ...imageFields }) => imageFields
-			),
-			reactions: {
-				like: like,
-				familier: familier,
-				atrue: aTrue,
-				love: love,
-				wonderful: wonderful,
-				iFeelJelousy: iFeelJelousy,
-			},
-			postData: feedPostData.map(
-				({ post_reactions, ...postFields }) => postFields
-			),
-			postReactions: {
-				like: postLike,
-				familier: postFamilier,
-				atrue: postAtrue,
-				love: postLove,
-				wonderful: postWonderful,
-				iFeelJelousy: postIfeelJelousy,
-			},
+			imageData: feedImageData,
+			// imageData: feedImageData.map(
+			// 	({ reactions, ...imageFields }) => imageFields
+			// ),
+			// reactions: {
+			// 	like: like,
+			// 	familier: familier,
+			// 	atrue: aTrue,
+			// 	love: love,
+			// 	wonderful: wonderful,
+			// 	iFeelJelousy: iFeelJelousy,
+			// },
+			postData: feedPostData,
+			// postData: feedPostData.map(
+			// 	({ post_reactions, ...postFields }) => postFields
+			// ),
+			// postReactions: {
+			// 	like: postLike,
+			// 	familier: postFamilier,
+			// 	atrue: postAtrue,
+			// 	love: postLove,
+			// 	wonderful: postWonderful,
+			// 	iFeelJelousy: postIfeelJelousy,
+			// },
 		});
 	} catch (err) {
 		console.log(err.message);
