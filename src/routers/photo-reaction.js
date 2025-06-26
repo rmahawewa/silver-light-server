@@ -5,9 +5,10 @@ const { userAuth } = require("../middleware/auth");
 const Image = require("../models/photos");
 const User = require("../models/user");
 
-PhotoReactionRouter.post("/reaction/save", async (req, res) => {
+PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 	try {
-		const loggedUser = "684196fc23f574b6b043f5f4";
+		// const loggedUser = "684196fc23f574b6b043f5f4";
+		const loggedUser = req.user._id;
 		const { photoId, reaction } = req.body;
 		const photo = await Image.findById({ _id: photoId });
 		if (!photo) {
@@ -38,7 +39,7 @@ PhotoReactionRouter.post("/reaction/save", async (req, res) => {
 	}
 });
 
-PhotoReactionRouter.post("/reaction/getreactor", async (req, res) => {
+PhotoReactionRouter.post("/reaction/getreactor", userAuth, async (req, res) => {
 	try {
 		const { reactedByIds } = req.body;
 		// console.log(reactedByIds);
