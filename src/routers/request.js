@@ -4,11 +4,11 @@ const { userAuth } = require("../middleware/auth");
 const ConnectionRequest = require("../models/connection-request");
 const User = require("../models/user");
 
-requestRouter.post("/request/send/:toUserId", userAuth, async (req, res) => {
+requestRouter.post("/request/send", userAuth, async (req, res) => {
 	try {
 		const fromUserId = req.user._id;
-		const toUserId = req.params.toUserId;
-		const status = "send";
+		const { toUserId } = req.body;
+		const status = "sent";
 
 		const toUser = await User.findById(toUserId);
 		if (!toUser) {
@@ -70,5 +70,26 @@ requestRouter.post(
 		}
 	}
 );
+
+requestRouter.get("/request/user-requests", userAuth, async (req, res) => {
+	try {
+		const loggedInUser = req.user._id;
+		const connRequests = await ConnectionRequest.find({
+			$or: [
+				{
+					fromUserId: loggedInUser,
+					toUserId: { $ne: loggedInUser },
+				},
+				{
+					toUserId: loggedInUser,
+					fromUserId: { $ne: loggedInUser },
+				},
+			],
+		});
+		res.json({ connections: connRequests });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
 
 module.exports = requestRouter;
