@@ -255,4 +255,22 @@ userRouter.get("/feed/postcomments", userAuth, async (req, res) => {
 	}
 });
 
+userRouter.get("/feed/get-uploaded-images", userAuth, async (req, res) => {
+	try {
+		const loggedUser = req.user;
+		// const userId = "684196fc23f574b6b043f5f4";
+		const images = await Image.find(
+			{ uploadedUserId: loggedUser._id },
+			"_id uploadedUserId url"
+		);
+		if (!images) {
+			throw new Error("Images not found for the user");
+		}
+		res.json({ data: images });
+	} catch (err) {
+		console.log(err.message);
+		res.status(400).send(err.message);
+	}
+});
+
 module.exports = userRouter;

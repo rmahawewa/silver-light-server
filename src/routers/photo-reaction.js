@@ -35,6 +35,7 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 			res.json({ message: "Reaction record saved successfully", data: save });
 		}
 	} catch (err) {
+		console.log(err.message);
 		res.send(err.message);
 	}
 });
