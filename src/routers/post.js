@@ -13,10 +13,11 @@ postRouter.post("/post/save", userAuth, async (req, res) => {
 			createdUserId: loggedInuser,
 			title,
 			photos: images,
+			category: category,
 			description,
 		});
 		const savedPost = await post.save();
-		if (savedPost) {
+		if (savedPost && category.length === 0) {
 			await savedPost.addCategoriesFromImages();
 		}
 		res.json({ message: "Post successfully saved", data: savedPost });

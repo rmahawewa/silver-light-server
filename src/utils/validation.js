@@ -53,7 +53,9 @@ const validatePostPhotoData = (req) => {
 		const uploadedUserId = await Image.findById({ _id: img }).select(
 			"uploadedUserId"
 		);
-		if (loggedInUser !== uploadedUserId) {
+		// console.log(loggedInUser);
+		// console.log(loggedInUser == uploadedUserId.uploadedUserId);
+		if (!loggedInUser.equals(uploadedUserId.uploadedUserId)) {
 			throw new Error(
 				"Permissions denied. You can only use images uploaded by you."
 			);
