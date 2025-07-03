@@ -6,18 +6,28 @@ const PostComment = require("../models/post-comment");
 postCommentRouter.post("/postcomment/save", userAuth, async (req, res) => {
 	try {
 		const loggedUser = req.user;
-		const { postId, parentCommentId, commentByUser, comment } = req.body;
-		if (commentByUser !== loggedUser) {
-			throw new Error("Permission denied");
-		}
-		const postcomment = new PostComment({
-			postId: postId,
-			parentCommentId: parentCommentId,
-			commentByUser: commentByUser,
-			comment: comment,
-		});
+		const { postId, parentCommentId, comment, commentByUser } = req.body;
+		// if (!commentByUser.equals(loggedUser._id)) {
+		// 	throw new Error("Permission denied");
+		// }
+		const postcomment =
+			parentCommentId === 0
+				? new PostComment({
+						postId: postId,
+						commentByUser: loggedUser._id,
+						comment: comment,
+				  })
+				: new PostComment({
+						postId: postId,
+						parentCommentId: parentCommentId,
+						commentByUser: loggedUser._id,
+						comment: comment,
+				  });
 		const save = await postcomment.save();
-		const parentComment = await PostComment.findById({ _id: parentCommentId });
+		const parentComment =
+			parentCommentId !== 0
+				? await PostComment.findById({ _id: parentCommentId })
+				: null;
 		if (parentComment) {
 			parentComment.childCommentIds.push(save._id);
 			await parentComment.save();
@@ -104,5 +114,16 @@ deleteRecurcively = async (commentId) => {
 		throw new Error(err.message);
 	}
 };
+
+postCommentRouter.get("/postcomment/:postId", userAuth, async (req, res) => {
+	try {
+		const postId = req.params.postId;
+		const postComments = await PostComment.find({ postId: postId });
+		res.json({ data: postComments });
+	} catch (err) {
+		console.log(err.message);
+		res.status(400).send(err.message);
+	}
+});
 
 module.exports = postCommentRouter;

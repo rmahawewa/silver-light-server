@@ -20,7 +20,11 @@ postRouter.post("/post/save", userAuth, async (req, res) => {
 		if (savedPost && category.length === 0) {
 			await savedPost.addCategoriesFromImages();
 		}
-		res.json({ message: "Post successfully saved", data: savedPost });
+		const newPostWithImages = await Post.findById({
+			_id: savedPost._id,
+		}).populate("photos", "_id url photoTitle");
+		console.log(newPostWithImages);
+		res.json({ message: "Post successfully saved", data: newPostWithImages });
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
