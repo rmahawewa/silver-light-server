@@ -4,24 +4,17 @@ const { userAuth } = require("../middleware/auth");
 const Image = require("../models/photos");
 const Post = require("../models/post");
 
-categoryRouter.get("/allCategories", async (req, res) => {
+categoryRouter.get("/allCategories", userAuth, async (req, res) => {
 	try {
-		const imageCategoriesObjectArray = await Image.find().select("category");
+		const imageCategoriesObjectArray = await Image.distinct("category");
 		console.log(imageCategoriesObjectArray);
-		const categoriesArray = new Set();
-		imageCategoriesObjectArray.forEach((obj) => {
-			obj.category.forEach((c) => {
-				categoriesArray.add(c);
-			});
-		});
-		console.log(categoriesArray);
-		res.send();
+		res.json({ categories: imageCategoriesObjectArray });
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
 });
 
-categoryRouter.post("/category/allByCategory", async (req, res) => {
+categoryRouter.post("/category/allByCategory", userAuth, async (req, res) => {
 	try {
 		let { categoryName } = req.body;
 		categoryName = categoryName.trim().toLowerCase();

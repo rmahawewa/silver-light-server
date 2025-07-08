@@ -6,10 +6,13 @@ const PostComment = require("../models/post-comment");
 postCommentRouter.post("/postcomment/save", userAuth, async (req, res) => {
 	try {
 		const loggedUser = req.user;
-		const { postId, parentCommentId, comment, commentByUser } = req.body;
-		// if (!commentByUser.equals(loggedUser._id)) {
-		// 	throw new Error("Permission denied");
-		// }
+		const { postId, parentCommentId, comment } = req.body;
+
+		// console.log("postId: " + postId);
+		// console.log("parentCommentId: " + parentCommentId);
+		// console.log("comment: " + comment);
+		// res.send();
+
 		const postcomment =
 			parentCommentId === 0
 				? new PostComment({
@@ -118,7 +121,10 @@ deleteRecurcively = async (commentId) => {
 postCommentRouter.get("/postcomment/:postId", userAuth, async (req, res) => {
 	try {
 		const postId = req.params.postId;
-		const postComments = await PostComment.find({ postId: postId });
+		const postComments = await PostComment.find({ postId: postId }).populate({
+			path: "commentByUser",
+			select: "_id userName",
+		});
 		res.json({ data: postComments });
 	} catch (err) {
 		console.log(err.message);
