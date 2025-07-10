@@ -18,19 +18,15 @@ categoryRouter.post("/category/allByCategory", userAuth, async (req, res) => {
 	try {
 		let { categoryName } = req.body;
 		categoryName = categoryName.trim().toLowerCase();
-
+		// console.log(categoryName);
 		let images = await Image.find({
 			category: { $in: [categoryName] },
 		});
-		if (!images || images.length === 0) {
-			return res
-				.status(404)
-				.json({ message: "No images found for the category" });
-		}
 		let posts = await Post.find({
 			category: { $in: [categoryName] },
 		});
-		if (!posts || posts.length === 0 || !images || images.length === 0) {
+
+		if (posts?.length === 0 && images?.length === 0) {
 			return res
 				.status(404)
 				.json({ message: "No items found for the category" });
