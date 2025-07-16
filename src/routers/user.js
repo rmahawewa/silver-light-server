@@ -6,13 +6,13 @@ const PhotoReaction = require("../models/photo-reaction");
 const PostReaction = require("../models/post-reaction");
 const { userAuth } = require("../middleware/auth");
 
-userRouter.post("/feed/", userAuth, async (req, res) => {
+userRouter.post("/feed", userAuth, async (req, res) => {
 	try {
 		const loggedUser = req.user._id;
 		console.log("logged user:" + loggedUser);
 		const { categ } = req.body;
-		const distinctCategories = "";
-		const postCategories = "";
+		let distinctCategories = [];
+		let postCategories = [];
 		if (categ === "") {
 			// Find categories for images uploaded by the logged user
 			distinctCategories = await Image.distinct("category", {
@@ -24,12 +24,12 @@ userRouter.post("/feed/", userAuth, async (req, res) => {
 			});
 		} else {
 			// Find categories for images uploaded by the logged user
-			distinctCategories = categ;
+			distinctCategories.push(categ);
 			// Find categories for posts uploaded by the logged user
-			postCategories = categ;
+			postCategories.push(categ);
 		}
 
-		//Find relevent images and their reactions using aggregation
+		// Find relevent images and their reactions using aggregation
 		const feedImageData = await Image.aggregate([
 			{ $match: { category: { $in: distinctCategories } } },
 			// Lookup reactions for these images
@@ -60,7 +60,7 @@ userRouter.post("/feed/", userAuth, async (req, res) => {
 				},
 			},
 		]);
-		//Find relevent posts and their reactions using aggregation
+		// Find relevent posts and their reactions using aggregation
 		const feedPostData = await Post.aggregate([
 			{ $match: { category: { $in: postCategories } } },
 			//Lookup reactions for these posts
@@ -97,7 +97,6 @@ userRouter.post("/feed/", userAuth, async (req, res) => {
 				},
 			},
 		]);
-
 		res.json({
 			imageData: feedImageData,
 			postData: feedPostData,

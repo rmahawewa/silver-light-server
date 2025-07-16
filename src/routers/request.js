@@ -92,4 +92,26 @@ requestRouter.get("/request/user-requests", userAuth, async (req, res) => {
 	}
 });
 
+requestRouter.get("/request/connections", userAuth, async (req, res) => {
+	try {
+		const loggedInUser = req.user._id;
+		const connections = await ConnectionRequest.find({
+			$or: [
+				{
+					fromUserId: loggedInUser,
+				},
+				{
+					toUserId: loggedInUser,
+				},
+			],
+			$and: [{ status: "accepted" }],
+		})
+			.populate("fromUserId")
+			.populate("toUserId");
+		res.json({ connections: connections });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
+
 module.exports = requestRouter;
