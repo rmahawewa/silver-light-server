@@ -85,7 +85,9 @@ requestRouter.get("/request/user-requests", userAuth, async (req, res) => {
 					fromUserId: { $ne: loggedInUser },
 				},
 			],
-		});
+		})
+			.populate("fromUserId")
+			.populate("toUserId");
 		res.json({ connections: connRequests });
 	} catch (err) {
 		res.status(400).send(err.message);
