@@ -41,35 +41,29 @@ requestRouter.post("/request/send", userAuth, async (req, res) => {
 	}
 });
 
-requestRouter.post(
-	"/request/received/:response/:requestId",
-	userAuth,
-	async (req, res) => {
-		try {
-			const loggedInUser = req.user;
-			const allowedResponces = ["accepted", "rejected"];
-			const { response, requestId } = req.params;
-			if (!allowedResponces.includes(response)) {
-				return res.status(400).json({ message: "Status is not valid" });
-			}
-			const connectionRequest = await ConnectionRequest.findOne({
-				_id: requestId,
-				toUserId: loggedInUser,
-				status: "sent",
-			});
-			if (!connectionRequest) {
-				return res
-					.status(404)
-					.json({ message: "Connection request not found" });
-			}
-			connectionRequest.status = response;
-			const save = await connectionRequest.save();
-			res.json({ message: "Connection request " + response, data: save });
-		} catch (err) {
-			res.status(400).send(err.message);
+requestRouter.post("/request/respond", userAuth, async (req, res) => {
+	try {
+		const loggedInUser = req.user;
+		const allowedResponces = ["accepted", "rejected"];
+		const { response, requestId } = req.body;
+		if (!allowedResponces.includes(response)) {
+			return res.status(400).json({ message: "Status is not valid" });
 		}
+		const connectionRequest = await ConnectionRequest.findOne({
+			_id: requestId,
+			toUserId: loggedInUser,
+			status: "sent",
+		});
+		if (!connectionRequest) {
+			return res.status(404).json({ message: "Connection request not found" });
+		}
+		connectionRequest.status = response;
+		const save = await connectionRequest.save();
+		res.json({ message: "Connection request " + response, data: save });
+	} catch (err) {
+		res.status(400).send(err.message);
 	}
-);
+});
 
 requestRouter.get("/request/user-requests", userAuth, async (req, res) => {
 	try {
