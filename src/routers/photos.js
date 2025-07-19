@@ -11,11 +11,12 @@ ImageRouter.post(
 	userAuth,
 	upload.single("image"),
 	async (req, res) => {
-		// console.log("Request body: " + req.body);
 		try {
 			if (!req.file) {
 				return res.status(400).json({ message: "No file uploaded" });
 			}
+
+			const loggedInUser = req.user._id;
 
 			validateImageData(req);
 
@@ -28,7 +29,7 @@ ImageRouter.post(
 
 			//Save the image metadata to mongo db
 			const image = new Image({
-				uploadedUserId: "6841738705c90d15f9f0b308",
+				uploadedUserId: loggedInUser,
 				fileName: filename,
 				originalName: originalname,
 				path: filePath,
@@ -66,8 +67,7 @@ ImageRouter.get("/image/:imageId", userAuth, async (req, res) => {
 
 ImageRouter.patch("/image/update", userAuth, async (req, res) => {
 	try {
-		// const userId = "6841738705c90d15f9f0b308";
-		const userId = "684196fc23f574b6b043f5f4";
+		const userId = req.user._id;
 		const { _id, photoTitle, category, photoDescription } = req.body;
 		const img = await Image.findById({ _id: _id });
 		console.log(img);
@@ -89,23 +89,5 @@ ImageRouter.patch("/image/update", userAuth, async (req, res) => {
 		res.status(400).send(err.message);
 	}
 });
-
-// ImageRouter.get("/image/get-by-user", userAuth, async (req, res) => {
-// 	try {
-// 		const loggedUser = req.user;
-// 		// const userId = "684196fc23f574b6b043f5f4";
-// 		const images = await Image.find(
-// 			{ uploadedUserId: loggedUser._id },
-// 			"_id uploadedUserId url"
-// 		);
-// 		if (!images) {
-// 			throw new Error("Images not found for the user");
-// 		}
-// 		res.json({ data: images });
-// 	} catch (err) {
-// 		console.log(err.message);
-// 		res.status(400).send(err.message);
-// 	}
-// });
 
 module.exports = ImageRouter;
