@@ -86,7 +86,7 @@ userRouter.post("/feed", userAuth, async (req, res) => {
 					_id: 1,
 					createdUserId: 1,
 					title: 1,
-					images: "$photoDetails",
+					photos: "$photoDetails",
 					category: 1,
 					description: 1,
 					post_reactions: {

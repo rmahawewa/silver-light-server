@@ -32,9 +32,14 @@ requestRouter.post("/request/send", userAuth, async (req, res) => {
 			status: status,
 		});
 		const savedConnectionRequest = await connectionRequest.save();
+		const connRequest = await ConnectionRequest.find({
+			_id: savedConnectionRequest._id,
+		})
+			.populate("fromUserId")
+			.populate("toUserId");
 		res.json({
 			message: "Connection Request Sent Successfully!",
-			data: savedConnectionRequest,
+			data: connRequest,
 		});
 	} catch (err) {
 		res.status(400).send(err.message);
