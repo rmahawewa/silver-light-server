@@ -35,10 +35,14 @@ app.use("/", postReactionRouter);
 app.use("/", postCommentRouter);
 app.use("/", requestRouter);
 
+const server = httpProxyClient.createServer(app);
+initializeSocket(server);
+
 connectDB()
 	.then(() => {
 		console.log("Database connection established");
-		app.listen(process.env.PORT, () => {
+		// app.listen(process.env.PORT, () => {
+		server.listen(process.env.PORT, () => {
 			console.log("Server is successfully listening on port 1111 ...");
 		});
 	})
