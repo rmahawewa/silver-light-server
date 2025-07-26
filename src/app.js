@@ -13,6 +13,9 @@ const postReactionRouter = require("./routers/post-reaction");
 const postCommentRouter = require("./routers/post-comment");
 const requestRouter = require("./routers/request");
 const path = require("path"); // Node.js built-in module for path manipulation
+const http = require("http");
+const initializeSocket = require("./utils/socket");
+const chatRouter = require("./routers/chat");
 
 const app = express();
 
@@ -34,8 +37,9 @@ app.use("/", postRouter);
 app.use("/", postReactionRouter);
 app.use("/", postCommentRouter);
 app.use("/", requestRouter);
+app.use("/", chatRouter);
 
-const server = httpProxyClient.createServer(app);
+const server = http.createServer(app);
 initializeSocket(server);
 
 connectDB()
