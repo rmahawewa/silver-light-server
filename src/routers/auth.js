@@ -6,6 +6,7 @@ const {
 	validateSignUpData,
 	validateLoginData,
 } = require("../utils/validation");
+const { userAuth } = require("../middleware/auth");
 
 authRouter.post("/signup", async (req, res) => {
 	try {
@@ -34,6 +35,43 @@ authRouter.post("/signup", async (req, res) => {
 		});
 
 		res.json({ message: "User added successfully", data: savedUser });
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
+
+authRouter.patch("/update", userAuth, async (req, res) => {
+	try {
+		const {
+			firstName,
+			lastName,
+			userName,
+			birthday,
+			email,
+			gender,
+			photoUrl,
+			country,
+			reagion,
+			about,
+		} = req.body;
+		const loggedInUser = req.user?._id;
+		console.log(loggedInUser);
+		const record = await User.find({ _id: loggedInUser });
+		if (!record) {
+			throw new Error("Not a valid User");
+		}
+		record.firstName = firstName;
+		record.lastName = lastName;
+		record.userName = userName;
+		record.birthday = birthday;
+		record.email = email;
+		record.gender = gender;
+		record.photoUrl = photoUrl;
+		record.country = country;
+		record.reagion = reagion;
+		record.about = about;
+		record.save();
+		res.json({ message: "User updated successfully", data: record });
 	} catch (err) {
 		res.status(400).send(err.message);
 	}
