@@ -56,7 +56,7 @@ authRouter.patch("/update", userAuth, async (req, res) => {
 		} = req.body;
 		const loggedInUser = req.user?._id;
 		console.log(loggedInUser);
-		const record = await User.find({ _id: loggedInUser });
+		const record = await User.findOne({ _id: loggedInUser });
 		if (!record) {
 			throw new Error("Not a valid User");
 		}
@@ -70,7 +70,7 @@ authRouter.patch("/update", userAuth, async (req, res) => {
 		record.country = country;
 		record.reagion = reagion;
 		record.about = about;
-		record.save();
+		await record.save();
 		res.json({ message: "User updated successfully", data: record });
 	} catch (err) {
 		res.status(400).send(err.message);
