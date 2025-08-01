@@ -7,6 +7,7 @@ const {
 	validateLoginData,
 } = require("../utils/validation");
 const { userAuth } = require("../middleware/auth");
+const upload = require("../config/storage");
 
 authRouter.post("/signup", async (req, res) => {
 	try {
@@ -40,42 +41,55 @@ authRouter.post("/signup", async (req, res) => {
 	}
 });
 
-authRouter.patch("/update", userAuth, async (req, res) => {
-	try {
-		const {
-			firstName,
-			lastName,
-			userName,
-			birthday,
-			email,
-			gender,
-			photoUrl,
-			country,
-			reagion,
-			about,
-		} = req.body;
-		const loggedInUser = req.user?._id;
-		console.log(loggedInUser);
-		const record = await User.findOne({ _id: loggedInUser });
-		if (!record) {
-			throw new Error("Not a valid User");
+authRouter.patch(
+	"/update",
+	userAuth,
+	upload.single("image"),
+	async (req, res) => {
+		console.log(req);
+		try {
+			if (!req.file) {
+				return res.status(400).json({ message: "No file uploaded" });
+			}
+			//Access file details from req.file after multer process it
+			const { filename, originalname, path: filePath } = req.file;
+			//Image will be accesible from this URL
+			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
+			const {
+				firstName,
+				lastName,
+				userName,
+				birthday,
+				email,
+				gender,
+				image,
+				country,
+				reagion,
+				about,
+			} = req.body;
+			const loggedInUser = req.user?._id;
+			console.log(loggedInUser);
+			const record = await User.findOne({ _id: loggedInUser });
+			if (!record) {
+				throw new Error("Not a valid User");
+			}
+			record.firstName = firstName;
+			record.lastName = lastName;
+			record.userName = userName;
+			record.birthday = birthday;
+			record.email = email;
+			record.gender = gender;
+			record.photoUrl = imageUrl;
+			record.country = country;
+			record.reagion = reagion;
+			record.about = about;
+			await record.save();
+			res.json({ message: "User updated successfully", data: record });
+		} catch (err) {
+			res.status(400).send(err.message);
 		}
-		record.firstName = firstName;
-		record.lastName = lastName;
-		record.userName = userName;
-		record.birthday = birthday;
-		record.email = email;
-		record.gender = gender;
-		record.photoUrl = photoUrl;
-		record.country = country;
-		record.reagion = reagion;
-		record.about = about;
-		await record.save();
-		res.json({ message: "User updated successfully", data: record });
-	} catch (err) {
-		res.status(400).send(err.message);
 	}
-});
+);
 
 authRouter.post("/login", async (req, res) => {
 	try {
