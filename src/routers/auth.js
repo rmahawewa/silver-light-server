@@ -12,7 +12,7 @@ const upload = require("../config/storage");
 authRouter.post("/signup", async (req, res) => {
 	try {
 		//Validation of data
-		validateSignUpData(req);
+		// validateSignUpData(req);
 
 		const { firstName, lastName, userName, email, password } = req.body;
 		//Encrypting password
@@ -52,7 +52,8 @@ authRouter.patch(
 				return res.status(400).json({ message: "No file uploaded" });
 			}
 			//Access file details from req.file after multer process it
-			const { filename, originalname, path: filePath } = req.file;
+			const filename = req.file;
+			const { originalname, path: filePath } = req.file;
 			//Image will be accesible from this URL
 			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
 			const {
