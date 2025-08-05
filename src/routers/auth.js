@@ -46,16 +46,18 @@ authRouter.patch(
 	userAuth,
 	upload.single("image"),
 	async (req, res) => {
-		console.log(req);
+		// console.log(req);
 		try {
 			if (!req.file) {
 				return res.status(400).json({ message: "No file uploaded" });
 			}
 			//Access file details from req.file after multer process it
-			const filename = req.file;
+			const { filename } = req.file;
+			console.log("file name is: " + filename);
 			const { originalname, path: filePath } = req.file;
 			//Image will be accesible from this URL
 			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
+			console.log(imageUrl);
 			const {
 				firstName,
 				lastName,
@@ -69,7 +71,8 @@ authRouter.patch(
 				about,
 			} = req.body;
 			const loggedInUser = req.user?._id;
-			console.log(loggedInUser);
+			console.log(email);
+
 			const record = await User.findOne({ _id: loggedInUser });
 			if (!record) {
 				throw new Error("Not a valid User");

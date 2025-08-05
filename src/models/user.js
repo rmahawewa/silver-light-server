@@ -55,10 +55,12 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default:
 				"https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg",
-			validate(value) {
-				if (!validator.isURL(value)) {
-					throw new Error("Profile photo URL is not valid: ", value);
-				}
+			validate: {
+				validator: (value) => {
+					// Check if the URL is valid, allowing for localhost and no TLD.
+					return validator.isURL(value, { require_tld: false });
+				},
+				message: (props) => `Profile photo URL is not valid: ${props.value}`,
 			},
 		},
 		country: {
