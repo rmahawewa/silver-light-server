@@ -48,16 +48,19 @@ authRouter.patch(
 	async (req, res) => {
 		// console.log(req);
 		try {
-			if (!req.file) {
-				return res.status(400).json({ message: "No file uploaded" });
-			}
+			// if (!req.file) {
+			// 	return res.status(400).json({ message: "No file uploaded" });
+			// }
 			//Access file details from req.file after multer process it
-			const { filename } = req.file;
+			let { filename } = req.file ? req.file : "";
+			// if (filename) {
 			console.log("file name is: " + filename);
 			const { originalname, path: filePath } = req.file;
 			//Image will be accesible from this URL
 			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
 			console.log(imageUrl);
+			// }
+
 			const {
 				firstName,
 				lastName,
@@ -83,7 +86,9 @@ authRouter.patch(
 			record.birthday = birthday;
 			record.email = email;
 			record.gender = gender;
-			record.photoUrl = imageUrl;
+			record.photoUrl = req.file
+				? imageUrl
+				: "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg";
 			record.country = country;
 			record.reagion = reagion;
 			record.about = about;
