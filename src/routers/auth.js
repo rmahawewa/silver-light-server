@@ -55,7 +55,7 @@ authRouter.patch(
 			let { filename } = req.file ? req.file : "";
 			// if (filename) {
 			console.log("file name is: " + filename);
-			const { originalname, path: filePath } = req.file;
+			// const { originalname, path: filePath } = req.file;
 			//Image will be accesible from this URL
 			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
 			console.log(imageUrl);
