@@ -52,7 +52,7 @@ authRouter.patch(
 			// 	return res.status(400).json({ message: "No file uploaded" });
 			// }
 			//Access file details from req.file after multer process it
-			let { filename } = req.file ? req.file : "";
+			let { filename } = req.file;
 			// if (filename) {
 			console.log("file name is: " + filename);
 			// const { originalname, path: filePath } = req.file;
@@ -86,9 +86,7 @@ authRouter.patch(
 			record.birthday = birthday;
 			record.email = email;
 			record.gender = gender;
-			record.photoUrl = req.file
-				? imageUrl
-				: "https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg";
+			record.photoUrl = req.file ? imageUrl : record.photoUrl;
 			record.country = country;
 			record.reagion = reagion;
 			record.about = about;
@@ -129,6 +127,24 @@ authRouter.post("/login", async (req, res) => {
 authRouter.post("/logout", async (req, res) => {
 	res.cookie("token", null, { expires: new Date(Date.now()) });
 	res.send("Logout successfull");
+});
+
+authRouter.patch("/change-password", userAuth, async (req, res) => {
+	try {
+		const { oldpassword, newpassword } = req.body;
+		const user = req.user;
+		const isValidPassword = await user.validatePassword(oldpassword);
+		if (isValidPassword) {
+			const passwordHash = await bcrypt.hash(newpassword, 10);
+			user.password = passwordHash;
+			const savedUser = await user.save();
+			res.json({ message: "Password changing successfull", data: savedUser });
+		} else {
+			throw new Error("Old password is invalid");
+		}
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
 });
 
 module.exports = authRouter;
