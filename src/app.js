@@ -16,6 +16,7 @@ const path = require("path"); // Node.js built-in module for path manipulation
 const http = require("http");
 const initializeSocket = require("./utils/socket");
 const chatRouter = require("./routers/chat");
+const lastVisitedRouter = require("./routers/last-visited");
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/", postReactionRouter);
 app.use("/", postCommentRouter);
 app.use("/", requestRouter);
 app.use("/", chatRouter);
+app.use("/", lastVisitedRouter);
 
 const server = http.createServer(app);
 initializeSocket(server);
