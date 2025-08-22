@@ -41,16 +41,27 @@ userRouter.post("/feed", userAuth, async (req, res) => {
 					as: "reactions",
 				},
 			},
+			//Lookup user details for the uploadedUserId
+			{
+				$lookup: {
+					from: "users",
+					localField: "uploadedUserId",
+					foreignField: "_id",
+					as: "uploadedUserDetails",
+				},
+			},
 			//Project the required fields and restructure data for the client
 			{
 				$project: {
 					_id: 1,
 					uploadedUserId: 1,
+					uploadedUserDetails: "$uploadedUserDetails",
 					fileName: 1,
 					url: 1,
 					photoTitle: 1,
 					category: 1,
 					photoDescription: 1,
+					createdAt: 1,
 					//photo-reaction fields
 					reactions: {
 						_id: 1,
@@ -80,15 +91,26 @@ userRouter.post("/feed", userAuth, async (req, res) => {
 					as: "post_reactions",
 				},
 			},
+			// Lookup user details for the createdUserId
+			{
+				$lookup: {
+					from: "users",
+					localField: "createdUserId",
+					foreignField: "_id",
+					as: "createdUserDetails",
+				},
+			},
 			//Project the required fields and restructure post-reaction data for the client
 			{
 				$project: {
 					_id: 1,
 					createdUserId: 1,
+					createdUserDetails: "$createdUserDetails",
 					title: 1,
 					photos: "$photoDetails",
 					category: 1,
 					description: 1,
+					createdAt: 1,
 					post_reactions: {
 						_id: 1,
 						reactionType: 1,

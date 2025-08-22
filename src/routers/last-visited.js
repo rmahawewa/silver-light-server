@@ -30,7 +30,6 @@ lastVisitedRouter.post("/lastvisited/get", userAuth, async (req, res) => {
 		})
 			.sort({ createdAt: -1 })
 			.limit(1);
-
 		res.json({ data: lastVisitedDateTime });
 	} catch (err) {
 		res.status("400").send(err.message);
