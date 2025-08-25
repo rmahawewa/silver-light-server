@@ -32,7 +32,7 @@ requestRouter.post("/request/send", userAuth, async (req, res) => {
 			status: status,
 		});
 		const savedConnectionRequest = await connectionRequest.save();
-		const connRequest = await ConnectionRequest.find({
+		const connRequest = await ConnectionRequest.findOne({
 			_id: savedConnectionRequest._id,
 		})
 			.populate("fromUserId")
