@@ -6,14 +6,16 @@ const PhotoReaction = require("../models/photo-reaction");
 const PostReaction = require("../models/post-reaction");
 const { userAuth } = require("../middleware/auth");
 
-userRouter.post("/feed", userAuth, async (req, res) => {
+userRouter.get("/feed", userAuth, async (req, res) => {
 	try {
 		const loggedUser = req.user._id;
 		console.log("logged user:" + loggedUser);
-		const { categ } = req.body;
+		// const { categ } = req.body;
+		// const { category } = req.params;
+		const { category } = req.query;
 		let distinctCategories = [];
 		let postCategories = [];
-		if (categ === "") {
+		if (category === "") {
 			// Find categories for images uploaded by the logged user
 			distinctCategories = await Image.distinct("category", {
 				uploadedUserId: loggedUser,
@@ -24,9 +26,9 @@ userRouter.post("/feed", userAuth, async (req, res) => {
 			});
 		} else {
 			// Find categories for images uploaded by the logged user
-			distinctCategories.push(categ);
+			distinctCategories.push(category);
 			// Find categories for posts uploaded by the logged user
-			postCategories.push(categ);
+			postCategories.push(category);
 		}
 
 		// Find relevent images and their reactions using aggregation
@@ -68,6 +70,12 @@ userRouter.post("/feed", userAuth, async (req, res) => {
 						reactionType: 1,
 						reactedById: 1,
 					},
+				},
+			},
+			// Sort the results in descending order by createdAt date
+			{
+				$sort: {
+					createdAt: -1,
 				},
 			},
 		]);
@@ -116,6 +124,12 @@ userRouter.post("/feed", userAuth, async (req, res) => {
 						reactionType: 1,
 						reactedById: 1,
 					},
+				},
+			},
+			// Sort the results in descending order by createdAt date
+			{
+				$sort: {
+					createdAt: -1,
 				},
 			},
 		]);
