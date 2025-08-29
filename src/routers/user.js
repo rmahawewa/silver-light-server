@@ -209,4 +209,16 @@ userRouter.get("/feed/get-uploaded-images", userAuth, async (req, res) => {
 	}
 });
 
+// A new route to check for the current logged-in user
+userRouter.get("/current-user", userAuth, async (req, res) => {
+	try {
+		// userAuth middleware has already verified the token
+		// and attached the user object to req.user
+		res.status(200).json({ user: req.user });
+	} catch (err) {
+		// userAuth will already handle the 401 Unauthorized
+		console.error(err);
+	}
+});
+
 module.exports = userRouter;

@@ -105,19 +105,35 @@ authRouter.post("/login", async (req, res) => {
 		validateLoginData(req);
 		const { email, password } = req.body;
 		const loginUser = await User.findOne({ email: email });
+
 		if (!loginUser) {
 			throw new Error("User not found");
 		}
+
 		const isValidPassword = await loginUser.validatePassword(password);
 		if (isValidPassword) {
-			//Create a JWT Token
-			const token = await loginUser.getJWT();
+			// Create a short-lived access token (e.g., 15 minutes)
+			const accessToken = await loginUser.getJWT("15m");
 
-			//Add the token to the cookie and send the response back to the user
-			res.cookie("token", token, {
-				expires: new Date(Date.now() + 7 * 24 * 3600000),
+			// Create a long-lived refresh token (e.g., 7 days)
+			const refreshToken = await loginUser.getJWT("7d");
+
+			// Set the refresh token as an HttpOnly cookie
+			res.cookie("refreshToken", refreshToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "Strict",
+				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 			});
-			res.json({ message: "User login successfull", data: loginUser });
+
+			// Send the access token and user data in the JSON response
+			res.json({
+				message: "User login successful",
+				data: {
+					user: loginUser,
+					accessToken: accessToken,
+				},
+			});
 		} else {
 			throw new Error("Invalid credentials");
 		}
