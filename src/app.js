@@ -76,6 +76,7 @@ const postCommentRouter = require("./routers/post-comment");
 const requestRouter = require("./routers/request");
 const chatRouter = require("./routers/chat");
 const lastVisitedRouter = require("./routers/last-visited");
+const profileRouter = require("./routers/profile");
 const initializeSocket = require("./utils/socket");
 
 const app = express();
@@ -103,6 +104,7 @@ app.use("/", postCommentRouter);
 app.use("/", requestRouter);
 app.use("/", chatRouter);
 app.use("/", lastVisitedRouter);
+app.use("/", profileRouter);
 
 const server = http.createServer(app);
 initializeSocket(server);

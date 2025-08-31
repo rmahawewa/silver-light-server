@@ -102,43 +102,31 @@ authRouter.patch(
 
 authRouter.post("/login", async (req, res) => {
 	try {
-		validateLoginData(req);
 		const { email, password } = req.body;
-		const loginUser = await User.findOne({ email: email });
+		// Validation of data
+		validateLoginData(req);
 
-		if (!loginUser) {
-			throw new Error("User not found");
+		const user = await User.findOne({ email: email });
+		if (!user) {
+			throw new Error("Invalid credencials");
 		}
 
-		const isValidPassword = await loginUser.validatePassword(password);
+		const isValidPassword = await user.validatePassword(password);
 		if (isValidPassword) {
-			// Create a short-lived access token (e.g., 15 minutes)
-			const accessToken = await loginUser.getJWT("15m");
+			// Create a JWT Token
+			const token = await user.getJWT();
 
-			// Create a long-lived refresh token (e.g., 7 days)
-			const refreshToken = await loginUser.getJWT("7d");
-
-			// Set the refresh token as an HttpOnly cookie
-			res.cookie("refreshToken", refreshToken, {
-				httpOnly: true,
-				secure: process.env.NODE_ENV === "production",
-				sameSite: "Strict",
-				maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+			//Add the token to the cookie and send the response back to the user
+			res.cookie("token", token, {
+				expires: new Date(Date.now() + 7 * 24 * 3600000),
 			});
 
-			// Send the access token and user data in the JSON response
-			res.json({
-				message: "User login successful",
-				data: {
-					user: loginUser,
-					accessToken: accessToken,
-				},
-			});
+			res.json({ data: user });
 		} else {
-			throw new Error("Invalid credentials");
+			throw new Error("Invalid credencials");
 		}
 	} catch (err) {
-		res.status(400).send(err.message);
+		res.status(400).send("ERROR: " + err.message);
 	}
 });
 
