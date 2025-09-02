@@ -94,8 +94,9 @@ authRouter.patch(
 			record.country = country;
 			record.reagion = reagion;
 			record.about = about;
-			await record.save();
-			res.json({ message: "User updated successfully", data: record });
+			const savedRecord = await record.save();
+
+			res.json({ message: "User updated successfully", data: savedRecord });
 		} catch (err) {
 			res.status(400).send(err.message);
 		}
