@@ -25,7 +25,9 @@ ImageRouter.post(
 			const { photoTitle, category, photoDescription } = req.body;
 
 			//Image will be accesible from this URL
-			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
+			// const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
+			const SERVER_IP = process.env.SERVER_IP;
+			const imageUrl = `http://${SERVER_IP}/api/uploads/${filename}`;
 
 			//Save the image metadata to mongo db
 			const image = new Image({
