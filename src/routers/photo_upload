@@ -59,7 +59,9 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
 		const { filename, originalname, path: filePath } = req.file;
 
 		// Construct the URL where the image will be accessible
-		const imageUrl = `http://localhost:${PORT}/uploads/${filename}`;
+		// const imageUrl = `http://localhost:${PORT}/uploads/${filename}`;
+		const imageUrl =
+			"http://" + process.env.SERVER_IP + "/api/uploads/" + filename;
 
 		// Save image metadata to MongoDB
 		const newImage = new Image({
