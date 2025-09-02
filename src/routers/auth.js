@@ -59,8 +59,10 @@ authRouter.patch(
 			console.log("file name is: " + filename);
 			// const { originalname, path: filePath } = req.file;
 			//Image will be accesible from this URL
-			const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
-			console.log(imageUrl);
+			// const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
+			// console.log(imageUrl);
+			const SERVER_IP = process.env.SERVER_IP;
+			const imageUrl = `http://${SERVER_IP}/api/uploads/${filename}`;
 			// }
 
 			const {
