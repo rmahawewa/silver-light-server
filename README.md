@@ -2,4 +2,4 @@
 
 A social media app
 
-Developer Guide: ./docs/developer_guide
+[Developer Guide](./docs/developer_guide)
