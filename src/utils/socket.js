@@ -61,8 +61,17 @@ const initializeSocket = (server) => {
 				}
 			}
 		);
-		socket.on("disconnect", () => {});
+
+		socket.on("joinNotifications", ({ userId }) => {
+			//Each user joins a private room based on their ID
+			socket.join(userId);
+		});
+
+		socket.on("disconnect", () => {
+			console.log("User disconnected");
+		});
 	});
+	return io; //Return the io instance
 };
 
 module.exports = initializeSocket;
