@@ -45,4 +45,4 @@ const notificationSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-module.exports = mongoode.model("Notifications", notificationSchema);
+module.exports = mongoose.model("Notifications", notificationSchema);

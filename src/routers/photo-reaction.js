@@ -48,13 +48,17 @@ module.exports = (io) => {
 					isRead: false,
 				});
 
-				await newNotification.save();
+				const savedNotification = await newNotification.save();
 
 				//Emit the real-time notification
 				io.to(photoOwnerId.toString()).emit("newNotification", {
+					notification_id: savedNotification._id,
 					senderId: loggedUser,
+					sender_name: req.user.userName,
 					imageId: photoId,
-					type: "reaction",
+					type: "reacted",
+					isRead: false,
+					time: savedNotification.createdAt,
 				});
 
 				res.json({ message: "Reaction record saved successfully", data: save });
