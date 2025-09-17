@@ -56,7 +56,7 @@ module.exports = (io) => {
 					senderId: loggedUser,
 					sender_name: req.user.userName,
 					imageId: photoId,
-					type: "reacted",
+					type: "reaction",
 					isRead: false,
 					time: savedNotification.createdAt,
 				});
