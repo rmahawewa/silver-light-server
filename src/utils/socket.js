@@ -3,6 +3,8 @@ const crypto = require("crypto");
 const { Chat } = require("../models/chat");
 // const { Server } = require("http");
 
+let ioInstance = null; // Store the instance here
+
 const getSecretRoomId = (userId, targetUserId) => {
 	return crypto
 		.createHash("sha256")
@@ -14,8 +16,13 @@ const initializeSocket = (server) => {
 	const io = socket(server, {
 		cors: {
 			origin: "http://localhost:5173",
+			methods: ["GET", "POST", "PATCH"],
+			credentials: true,
 		},
 	});
+
+	// Store the io instance for later use
+	ioInstance = io;
 
 	io.on("connection", (socket) => {
 		//Handle events
@@ -47,8 +54,9 @@ const initializeSocket = (server) => {
 						senderId: userId,
 						text: text,
 					});
+					///home/rdm/Desktop/namaste%20dev/namasteNodeJS/dev-tinder-server/src/utils/socket.js
 
-					await chat.save();
+					file: await chat.save();
 
 					io.to(roomId).emit("messageReceived", {
 						senderId: userId,
@@ -65,6 +73,7 @@ const initializeSocket = (server) => {
 		socket.on("joinNotifications", ({ userId }) => {
 			//Each user joins a private room based on their ID
 			socket.join(userId);
+			console.log("joinNotifications Event");
 		});
 
 		socket.on("disconnect", () => {
@@ -74,4 +83,16 @@ const initializeSocket = (server) => {
 	return io; //Return the io instance
 };
 
-module.exports = initializeSocket;
+const emitNewNotification = (recipientId, data) => {
+	// Check if the server instance is active
+	if (ioInstance) {
+		// Use the global ioInstance to emit the event to the recipient's room
+		ioInstance.to(recipientId).emit("newNotification", data);
+		console.log(`Emitted newNotification to room: ${recipientId}`);
+	} else {
+		// Log an error if the server is not initialized
+		console.error("Socket.IO not initialized, cannot emit notification.");
+	}
+};
+
+module.exports = { initializeSocket, emitNewNotification };

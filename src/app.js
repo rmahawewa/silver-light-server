@@ -20,11 +20,12 @@ const requestRouter = require("./routers/request");
 const chatRouter = require("./routers/chat");
 const lastVisitedRouter = require("./routers/last-visited");
 const profileRouter = require("./routers/profile");
-const initializeSocket = require("./utils/socket");
+const { initializeSocket } = require("./utils/socket");
 
 const app = express();
 const server = http.createServer(app);
-const io = initializeSocket(server); // Store the returned io instance
+// const io = initializeSocket(server); // Store the returned io instance
+initializeSocket(server);
 
 // Middleware
 // The order of these is important.
@@ -42,7 +43,8 @@ app.use("/", authRouter);
 app.use("/", ImageRouter);
 app.use("/", userRouter);
 app.use("/", categoryRouter);
-app.use("/", PhotoReactionRouter(io)); //Pass io here
+// app.use("/", PhotoReactionRouter(io)); //Pass io here
+app.use("/", PhotoReactionRouter);
 app.use("/", postRouter);
 app.use("/", postReactionRouter);
 app.use("/", postCommentRouter);
