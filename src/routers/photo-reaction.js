@@ -28,6 +28,34 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 		if (existingEntry) {
 			existingEntry.reactionType = reaction;
 			const save = await existingEntry.save();
+			if (reaction !== "undo") {
+				console.log("ee");
+				//Create and save a new notification
+				const newNotification = new Notifications({
+					recipientId: photoOwnerId,
+					senderId: loggedUser,
+					postOrImage: "image",
+					imageId: photoId,
+					type: "reaction",
+					isRead: false,
+				});
+
+				const savedNotification = await newNotification.save();
+
+				// Call the new function to emit the notification
+				emitNewNotification(photoOwnerId.toString(), {
+					notification_id: savedNotification._id,
+					senderId: loggedUser,
+					sender_name: req.user.userName,
+					imageId: photoId,
+					postId: "",
+					type: "reaction",
+					value: reaction,
+					// isRead: false,
+					category: "image",
+					time: savedNotification.createdAt,
+				});
+			}
 			res.json({ message: "Reaction record saved successfully", data: save });
 		} else {
 			const photoReactionEnrty = new PhotoReaction({
@@ -52,27 +80,16 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 
 			const savedNotification = await newNotification.save();
 
-			//Emit the real-time notification
-			// io.to(photoOwnerId.toString()).emit("newNotification", {
-			// 	notification_id: savedNotification._id,
-			// 	photoId: photoId,
-			// 	senderId: loggedUser,
-			// 	sender_name: req.user.userName,
-			// 	imageId: photoId,
-			// 	type: "reaction",
-			// 	isRead: false,
-			// 	time: savedNotification.createdAt,
-			// });
-
 			// Call the new function to emit the notification
 			emitNewNotification(photoOwnerId.toString(), {
-				notification_id: savedNotification._id,
-				photoId: photoId,
 				senderId: loggedUser,
 				sender_name: req.user.userName,
 				imageId: photoId,
+				postId: "",
 				type: "reaction",
-				isRead: false,
+				value: reaction,
+				// isRead: false,
+				category: "image",
 				time: savedNotification.createdAt,
 			});
 
