@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
-		postOrImage: {
+		category: {
 			type: String,
 			require: true,
 			enum: {
@@ -35,6 +35,9 @@ const notificationSchema = new mongoose.Schema(
 				values: ["reaction", "comment"],
 				message: `{VALUE} is an incorrect status type`,
 			},
+		},
+		value: {
+			type: String,
 		},
 		isRead: {
 			type: Boolean,

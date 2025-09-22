@@ -29,14 +29,15 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 			existingEntry.reactionType = reaction;
 			const save = await existingEntry.save();
 			if (reaction !== "undo") {
-				console.log("ee");
+				console.log("eee");
 				//Create and save a new notification
 				const newNotification = new Notifications({
 					recipientId: photoOwnerId,
 					senderId: loggedUser,
-					postOrImage: "image",
+					category: "image",
 					imageId: photoId,
 					type: "reaction",
+					value: reaction,
 					isRead: false,
 				});
 
@@ -44,16 +45,15 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 
 				// Call the new function to emit the notification
 				emitNewNotification(photoOwnerId.toString(), {
-					notification_id: savedNotification._id,
-					senderId: loggedUser,
-					sender_name: req.user.userName,
+					_id: savedNotification._id,
+					recipientId: photoOwnerId,
+					senderId: { _id: loggedUser, userName: req.user.userName },
 					imageId: photoId,
-					postId: "",
 					type: "reaction",
 					value: reaction,
-					// isRead: false,
+					isRead: false,
 					category: "image",
-					time: savedNotification.createdAt,
+					createdAt: savedNotification.updatedAt,
 				});
 			}
 			res.json({ message: "Reaction record saved successfully", data: save });
@@ -75,6 +75,7 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 				postOrImage: "image",
 				imageId: photoId,
 				type: "reaction",
+				value: reaction,
 				isRead: false,
 			});
 
@@ -82,15 +83,15 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 
 			// Call the new function to emit the notification
 			emitNewNotification(photoOwnerId.toString(), {
-				senderId: loggedUser,
-				sender_name: req.user.userName,
+				_id: savedNotification._id,
+				recipientId: photoOwnerId,
+				senderId: { _id: loggedUser, userName: req.user.userName },
 				imageId: photoId,
-				postId: "",
 				type: "reaction",
 				value: reaction,
-				// isRead: false,
+				isRead: false,
 				category: "image",
-				time: savedNotification.createdAt,
+				createdAt: savedNotification.createdAt,
 			});
 
 			console.log("save reaction 1");

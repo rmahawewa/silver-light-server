@@ -26,29 +26,51 @@ postReactionRouter.post("/postreaction/save", userAuth, async (req, res) => {
 			if (reaction !== "undo") {
 				// console.log("ee");
 				//Create and save a new notification
+				// const newNotification = new Notifications({
+				// 	recipientId: post.createdUserId,
+				// 	senderId: loggedUser,
+				// 	postOrImage: "post",
+				// 	postId: postId,
+				// 	type: "reaction",
+				// 	isRead: false,
+				// });
+
 				const newNotification = new Notifications({
 					recipientId: post.createdUserId,
 					senderId: loggedUser,
-					postOrImage: "post",
+					category: "post",
 					postId: postId,
 					type: "reaction",
+					value: reaction,
 					isRead: false,
 				});
 
 				const savedNotification = await newNotification.save();
 
 				// Call the new function to emit the notification
+				// emitNewNotification(post.createdUserId.toString(), {
+				// 	notification_id: savedNotification._id,
+				// 	senderId: loggedUser,
+				// 	sender_name: req.user.userName,
+				// 	imageId: "",
+				// 	postId: postId,
+				// 	type: "reaction",
+				// 	value: reaction,
+				// 	// isRead: false,
+				// 	category: "post",
+				// 	time: savedNotification.createdAt,
+				// });
+
 				emitNewNotification(post.createdUserId.toString(), {
-					notification_id: savedNotification._id,
-					senderId: loggedUser,
-					sender_name: req.user.userName,
-					imageId: "",
+					_id: savedNotification._id,
+					recipientId: post.createdUserId,
+					senderId: { _id: loggedUser, userName: req.user.userName },
 					postId: postId,
 					type: "reaction",
 					value: reaction,
-					// isRead: false,
+					isRead: false,
 					category: "post",
-					time: savedNotification.createdAt,
+					createdAt: savedNotification.createdAt,
 				});
 			}
 
@@ -61,29 +83,51 @@ postReactionRouter.post("/postreaction/save", userAuth, async (req, res) => {
 			});
 			const save = await postReaction.save();
 
+			// const newNotification = new Notifications({
+			// 	recipientId: post.createdUserId,
+			// 	senderId: loggedUser,
+			// 	postOrImage: "post",
+			// 	postId: postId,
+			// 	type: "reaction",
+			// 	isRead: false,
+			// });
+
 			const newNotification = new Notifications({
 				recipientId: post.createdUserId,
 				senderId: loggedUser,
-				postOrImage: "post",
+				category: "post",
 				postId: postId,
 				type: "reaction",
+				value: reaction,
 				isRead: false,
 			});
 
 			const savedNotification = await newNotification.save();
 
 			// Call the new function to emit the notification
+			// emitNewNotification(post.createdUserId.toString(), {
+			// 	notification_id: savedNotification._id,
+			// 	senderId: loggedUser,
+			// 	sender_name: req.user.userName,
+			// 	imageId: "",
+			// 	postId: postId,
+			// 	type: "reaction",
+			// 	value: reaction,
+			// 	// isRead: false,
+			// 	category: "post",
+			// 	time: savedNotification.createdAt,
+			// });
+
 			emitNewNotification(post.createdUserId.toString(), {
-				notification_id: savedNotification._id,
-				senderId: loggedUser,
-				sender_name: req.user.userName,
-				imageId: "",
+				_id: savedNotification._id,
+				recipientId: post.createdUserId,
+				senderId: { _id: loggedUser, userName: req.user.userName },
 				postId: postId,
 				type: "reaction",
 				value: reaction,
-				// isRead: false,
+				isRead: false,
 				category: "post",
-				time: savedNotification.createdAt,
+				createdAt: savedNotification.createdAt,
 			});
 
 			res.json({ message: "Reaction record saved successfully", data: save });

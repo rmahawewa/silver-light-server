@@ -20,6 +20,7 @@ const requestRouter = require("./routers/request");
 const chatRouter = require("./routers/chat");
 const lastVisitedRouter = require("./routers/last-visited");
 const profileRouter = require("./routers/profile");
+const notificationRouter = require("./routers/notifications");
 const { initializeSocket } = require("./utils/socket");
 
 const app = express();
@@ -52,6 +53,7 @@ app.use("/", requestRouter);
 app.use("/", chatRouter);
 app.use("/", lastVisitedRouter);
 app.use("/", profileRouter);
+app.use("/", notificationRouter);
 
 connectDB()
 	.then(() => {
