@@ -2,17 +2,14 @@ const express = require("express");
 const postCommentRouter = express.Router();
 const { userAuth } = require("../middleware/auth");
 const PostComment = require("../models/post-comment");
+const { emitNewNotification } = require("../utils/socket");
+const Notifications = require("../models/notification");
+const Post = require("../models/post");
 
 postCommentRouter.post("/postcomment/save", userAuth, async (req, res) => {
 	try {
 		const loggedUser = req.user;
 		const { postId, parentCommentId, comment } = req.body;
-
-		// console.log("postId: " + postId);
-		// console.log("parentCommentId: " + parentCommentId);
-		// console.log("comment: " + comment);
-		// res.send();
-
 		const postcomment =
 			parentCommentId === 0
 				? new PostComment({
@@ -35,6 +32,38 @@ postCommentRouter.post("/postcomment/save", userAuth, async (req, res) => {
 			parentComment.childCommentIds.push(save._id);
 			await parentComment.save();
 		}
+
+		const postOwner = await Post.findById({ _id: postId });
+		const postOwnerId = postOwner.createdUserId;
+
+		//Create and save a new notification
+		const newNotification = new Notifications({
+			recipientId: postOwnerId,
+			senderId: loggedUser,
+			category: "post",
+			postId: save.postId,
+			commentId: save._id,
+			type: "comment",
+			value: comment,
+			isRead: false,
+		});
+
+		const savedNotification = await newNotification.save();
+
+		// Call the new function to emit the notification
+		emitNewNotification(postOwnerId.toString(), {
+			_id: savedNotification._id,
+			recipientId: postOwnerId,
+			senderId: { _id: loggedUser, userName: req.user.userName },
+			postId: save.postId,
+			commentId: save._id,
+			type: "comment",
+			value: comment,
+			isRead: false,
+			category: "post",
+			createdAt: savedNotification.createdAt,
+		});
+
 		res.json({
 			message: "Comment successfully saved",
 			data: save,

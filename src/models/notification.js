@@ -28,6 +28,10 @@ const notificationSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Image",
 		},
+		commentId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "PostComment",
+		},
 		type: {
 			type: String,
 			require: true,

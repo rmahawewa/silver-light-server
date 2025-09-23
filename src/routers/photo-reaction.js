@@ -72,7 +72,7 @@ PhotoReactionRouter.post("/reaction/save", userAuth, async (req, res) => {
 			const newNotification = new Notifications({
 				recipientId: photoOwnerId,
 				senderId: loggedUser,
-				postOrImage: "image",
+				category: "image",
 				imageId: photoId,
 				type: "reaction",
 				value: reaction,
