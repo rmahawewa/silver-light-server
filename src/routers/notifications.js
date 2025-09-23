@@ -18,4 +18,25 @@ notificationRouter.get("/notifications/unread", userAuth, async (req, res) => {
 	}
 });
 
+notificationRouter.patch(
+	"/notifications/changeReadState",
+	userAuth,
+	async (req, res) => {
+		try {
+			const { notificationId } = req.body;
+			const notification = await Notifications.findById({
+				_id: notificationId,
+			});
+			notification.isRead = true;
+			const updatedNotification = await notification.save();
+			res.json({
+				message: "read state changed successfully",
+				data: updatedNotification,
+			});
+		} catch (err) {
+			res.status(400).send(err.message);
+		}
+	}
+);
+
 module.exports = notificationRouter;
