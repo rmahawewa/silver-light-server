@@ -4,6 +4,21 @@ const { Chat } = require("../models/chat");
 
 const chatRouter = express.Router();
 
+chatRouter.get("/chat/allChats", userAuth, async (req, res) => {
+	try {
+		const userId = req.user._id;
+		let chats = await Chat.find({
+			participants: userId,
+		}).populate({
+			path: "participants",
+			select: "_id userName photoUrl",
+		});
+		res.json(chats);
+	} catch (err) {
+		res.status(400).send(err.message);
+	}
+});
+
 chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
 	const { targetUserId } = req.params;
 	const userId = req.user._id;
