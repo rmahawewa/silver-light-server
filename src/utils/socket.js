@@ -41,11 +41,23 @@ const initializeSocket = (server) => {
 					const roomId = getSecretRoomId(userId, targetUserId);
 
 					let chat = await Chat.findOne({
-						participants: { $all: [userId, targetUserId] },
+						// We target the nested 'user' field within the 'participants' array.
+						"participants.user": {
+							$all: [userId, targetUserId], // This ensures BOTH IDs are present in the array.
+							//$size: 2, // OPTIONAL: Add $size: 2 to ensure it's a 1:1 chat, not a larger group chat.
+						},
 					});
 					if (!chat) {
+						// chat = new Chat({
+						// 	participants: [userId, targetUserId],
+						// 	messages: [],
+						// });
 						chat = new Chat({
-							participants: [userId, targetUserId],
+							participants: [
+								// Ensure you populate the participants array with the new object structure
+								{ user: userId },
+								{ user: targetUserId },
+							],
 							messages: [],
 						});
 					}
