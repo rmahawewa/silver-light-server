@@ -71,6 +71,51 @@ chatRouter.get("/chat/allChats", userAuth, async (req, res) => {
 	}
 });
 
+chatRouter.patch(
+	"/chat/mark-read/:targetUserId",
+	userAuth,
+	async (req, res) => {
+		const { targetUserId } = req.params;
+		const loggedInUser = req.user._id;
+
+		try {
+			// 1. Find the chat and get the ID of the latest message
+			const chat = await Chat.findOne({
+				"participants.user": { $all: [loggedInUser, targetUserId] },
+			})
+				.sort({ "messages.createdAt": -1 })
+				.select("messages._id");
+
+			// Check if there are messages to mark as read
+			if (!chat || chat.messages.length === 0) {
+				return res
+					.status(200)
+					.json({ success: true, message: "No messages to mark as read." });
+			}
+
+			// The latest message is always the last element in the array due to sort,
+			// but since we only select messages._id, we take the last element of that array.
+			const latestMessageId = chat.messages[chat.messages.length - 1]._id;
+
+			// 2. Atomically update the specific user's lastReadMessageId
+			await Chat.updateOne(
+				{ "participants.user": { $all: [loggedInUser, targetUserId] } }, // Find the chat
+				{ $set: { "participants.$[elem].lastReadMessageId": latestMessageId } }, // Set the ID
+				{ arrayFilters: [{ "elem.user": loggedInUser }] } // For the correct user
+			);
+
+			// 3. (Optional but recommended): Real-time update for the frontend
+			// If you have a global unread count badge, you should calculate the new total here
+			// and emit a socket event to the client (e.g., io.to(loggedInUser).emit('global_count_update', newTotalCount)).
+
+			res.status(200).json({ success: true, message: "Chat marked as read." });
+		} catch (err) {
+			console.error("Error marking chat as read:", err);
+			res.status(500).json({ error: "Failed to process request." });
+		}
+	}
+);
+
 // chatRouter.get("/chat/allChats", userAuth, async (req, res) => {
 // 	try {
 // 		const userId = req.user._id;
