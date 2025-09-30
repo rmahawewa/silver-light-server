@@ -71,6 +71,46 @@ chatRouter.get("/chat/allChats", userAuth, async (req, res) => {
 	}
 });
 
+// chatRouter.get("/chat/:targetUserId", ...
+chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
+	const { targetUserId } = req.params;
+	const userId = req.user._id;
+
+	try {
+		// 1. Find the chat using the correct query for the new structure
+		let chat = await Chat.findOne({
+			// Find the chat where the nested 'user' field in the 'participants' array
+			// contains BOTH the logged-in user and the target user.
+			"participants.user": { $all: [userId, targetUserId] },
+		}).populate({
+			path: "messages.senderId",
+			select: "firstName lastName userName",
+		});
+
+		// 2. If no chat exists, create a new one with the correct structure
+		if (!chat) {
+			chat = new Chat({
+				participants: [
+					// Ensure the participants are created as objects
+					{ user: userId },
+					{ user: targetUserId },
+				],
+				messages: [],
+			});
+			await chat.save();
+		}
+
+		// 3. Optional but Recommended: Calculate Unread Count (if you need it here)
+		// If you need to send the unread count for this specific chat, you'd calculate it here
+		// based on the loggedInUser's lastReadMessageId and return it with the chat data.
+
+		res.json(chat);
+	} catch (err) {
+		console.error("Error fetching or creating chat:", err);
+		res.status(500).send("Error fetching chat data.");
+	}
+});
+
 chatRouter.patch(
 	"/chat/mark-read/:targetUserId",
 	userAuth,
@@ -115,81 +155,5 @@ chatRouter.patch(
 		}
 	}
 );
-
-// chatRouter.get("/chat/allChats", userAuth, async (req, res) => {
-// 	try {
-// 		const userId = req.user._id;
-// 		let chats = await Chat.find({
-// 			participants: userId,
-// 		}).populate({
-// 			path: "participants",
-// 			select: "_id userName photoUrl",
-// 		});
-// 		res.json(chats);
-// 	} catch (err) {
-// 		res.status(400).send(err.message);
-// 	}
-// });
-
-// chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
-// 	const { targetUserId } = req.params;
-// 	const userId = req.user._id;
-
-// 	try {
-// 		let chat = await Chat.findOne({
-// 			participants: { $all: [userId, targetUserId] },
-// 		}).populate({
-// 			path: "messages.senderId",
-// 			select: "firstName lastName userName",
-// 		});
-// 		if (!chat) {
-// 			chat = new Chat({ participants: [userId, targetUserId], messages: [] });
-// 			await chat.save();
-// 		}
-// 		res.json(chat);
-// 	} catch (err) {
-// 		res.status(400).send(err.message);
-// 	}
-// });
-
-// chatRouter.get("/chat/:targetUserId", ...
-chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
-	const { targetUserId } = req.params;
-	const userId = req.user._id;
-
-	try {
-		// 1. Find the chat using the correct query for the new structure
-		let chat = await Chat.findOne({
-			// Find the chat where the nested 'user' field in the 'participants' array
-			// contains BOTH the logged-in user and the target user.
-			"participants.user": { $all: [userId, targetUserId] },
-		}).populate({
-			path: "messages.senderId",
-			select: "firstName lastName userName",
-		});
-
-		// 2. If no chat exists, create a new one with the correct structure
-		if (!chat) {
-			chat = new Chat({
-				participants: [
-					// Ensure the participants are created as objects
-					{ user: userId },
-					{ user: targetUserId },
-				],
-				messages: [],
-			});
-			await chat.save();
-		}
-
-		// 3. Optional but Recommended: Calculate Unread Count (if you need it here)
-		// If you need to send the unread count for this specific chat, you'd calculate it here
-		// based on the loggedInUser's lastReadMessageId and return it with the chat data.
-
-		res.json(chat);
-	} catch (err) {
-		console.error("Error fetching or creating chat:", err);
-		res.status(500).send("Error fetching chat data.");
-	}
-});
 
 module.exports = chatRouter;
