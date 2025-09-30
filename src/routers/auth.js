@@ -54,16 +54,27 @@ authRouter.patch(
 			// 	return res.status(400).json({ message: "No file uploaded" });
 			// }
 			//Access file details from req.file after multer process it
-			let { filename } = req.file;
+			// let { filename } = req.file;
 			// if (filename) {
-			console.log("file name is: " + filename);
+			// console.log("file name is: " + filename);
 			// const { originalname, path: filePath } = req.file;
 			//Image will be accesible from this URL
 			// const imageUrl = `http://localhost:${process.env.PORT}/uploads/${filename}`;
 			// console.log(imageUrl);
-			const SERVER_IP = process.env.SERVER_IP;
-			const imageUrl = `http://${SERVER_IP}/api/uploads/${filename}`;
+			// const SERVER_IP = process.env.SERVER_IP;
+			// const imageUrl = `http://${SERVER_IP}/api/uploads/${filename}`;
 			// }
+
+			let filename = null;
+			let imageUrl = null;
+
+			if (req.file) {
+				filename = req.file.filename;
+				console.log("file name is: " + filename);
+
+				const SERVER_IP = process.env.SERVER_IP;
+				imageUrl = `http://${SERVER_IP}/api/uploads/${filename}`;
+			}
 
 			const {
 				firstName,
@@ -90,7 +101,7 @@ authRouter.patch(
 			record.birthday = birthday;
 			record.email = email;
 			record.gender = gender;
-			record.photoUrl = req.file ? imageUrl : record.photoUrl;
+			record.photoUrl = imageUrl || record.photoUrl;
 			record.country = country;
 			record.reagion = reagion;
 			record.about = about;
