@@ -71,9 +71,12 @@ authRouter.patch(
 			if (req.file) {
 				filename = req.file.filename;
 				console.log("file name is: " + filename);
+				filename = filename.replaceAll(" ", "");
+				console.log("file name is: " + filename);
 
 				const SERVER_IP = process.env.SERVER_IP;
 				imageUrl = `http://${SERVER_IP}/api/uploads/${filename}`;
+				// imageUrl = `http://localhost:1111/uploads/${filename}`;
 			}
 
 			const {
